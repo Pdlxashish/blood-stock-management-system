@@ -37,3 +37,18 @@ export const clearAuth = (): void => {
 export const isAuthenticated = (): boolean => {
   return !!getToken();
 };
+
+export const isAdmin = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const isAdminFlag = localStorage.getItem('isAdmin') === 'true';
+  const user = getUser();
+  return isAdminFlag || user?.role === 'ADMIN';
+};
+
+export const logout = (): void => {
+  clearAuth();
+  localStorage.removeItem('isAdmin');
+  if (typeof window !== 'undefined') {
+    window.location.href = '/auth/admin';
+  }
+};

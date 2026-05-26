@@ -36,6 +36,7 @@ import {
 import { toast } from 'sonner';
 import { useSearchDonors, useRecordBloodCollection } from '@/lib/queries/bloodCollection';
 import { useEvents } from '@/lib/queries/events';
+import { useDonorEligibility } from '@/lib/queries/donors';
 import { LocationAutocomplete } from '@/components/ui/location-autocomplete';
 import { FullAddressAutocomplete } from '@/components/ui/full-address-autocomplete';
 import { InteractiveLocationMap } from '@/components/ui/interactive-location-map';
@@ -53,6 +54,7 @@ export default function BloodCollectionPage() {
   const [donorSearch, setDonorSearch] = useState('');
   const [searchEnabled, setSearchEnabled] = useState(false);
   const [selectedDonor, setSelectedDonor] = useState<any>(null);
+  const [selectedDonorUserId, setSelectedDonorUserId] = useState<string>('');
   const [showLocationMap, setShowLocationMap] = useState(false);
   const [manualCoordinates, setManualCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -70,7 +72,7 @@ export default function BloodCollectionPage() {
     weight: '',
     city: '',
     address: '',
-    units: '1',
+    units: '1', // Fixed at 1 for individual donors
     collectionDate: new Date().toISOString().split('T')[0],
     collectionLocation: 'WALK_IN', // Default to Walk-in (Office)
     selectedEventId: eventIdFromUrl || '', // Auto-select event from URL
@@ -122,6 +124,7 @@ export default function BloodCollectionPage() {
   // Query hooks
   const { data: searchResults, isLoading: isSearching } = useSearchDonors(donorSearch, searchEnabled);
   const { data: events = [] } = useEvents({ status: 'RUNNING' }); // Only get running events
+  const { data: donorEligibility, isLoading: isCheckingEligibility } = useDonorEligibility(selectedDonorUserId);
   const recordCollection = useRecordBloodCollection();
 
   const handleSearchDonor = () => {
@@ -134,6 +137,7 @@ export default function BloodCollectionPage() {
 
   const handleSelectDonor = (donor: any) => {
     setSelectedDonor(donor);
+    setSelectedDonorUserId(donor.userId); // Set userId to trigger eligibility check
     
     // Convert blood group from DB format to display format
     const bloodGroupMap: Record<string, string> = {
@@ -253,7 +257,7 @@ export default function BloodCollectionPage() {
         address: formData.address,
         latitude, // Add geocoded latitude
         longitude, // Add geocoded longitude
-        units: formData.units,
+        units: '1', // Always 1 unit for individual donors
         collectionDate: formData.collectionDate,
         collectionLocation: formData.collectionLocation,
         eventId: formData.collectionLocation === 'EVENT' ? formData.selectedEventId : undefined, // Add event ID
@@ -291,8 +295,14 @@ export default function BloodCollectionPage() {
           
           switch (status) {
             case 400:
-              errorMessage = 'Invalid data provided';
-              errorDescription = data?.message || 'Please check your input and try again';
+              // Check if it's a donation eligibility error
+              if (data?.message && data.message.includes('not eligible to donate')) {
+                errorMessage = '🚫 Donor Not Eligible';
+                errorDescription = data.message;
+              } else {
+                errorMessage = 'Invalid data provided';
+                errorDescription = data?.message || 'Please check your input and try again';
+              }
               break;
             case 401:
               errorMessage = 'Authentication required';
@@ -487,6 +497,90 @@ export default function BloodCollectionPage() {
                     )}
                   </CardTitle>
                 </CardHeader>
+
+                {/* 90-Day Eligibility Warning */}
+                {selectedDonor && donorEligibility && !donorEligibility.isEligible && (
+                  <div className="mx-6 mb-4">
+                    <div className="flex items-start gap-3 rounded-lg border-2 border-red-300 bg-red-50 p-4">
+                      <AlertCircle className="h-6 w-6 text-red-600 mt-0.5 shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-bold text-red-800 text-lg">⚠️ Donor Not Eligible</p>
+                        <p className="text-sm text-red-700 mt-1">
+                          This donor has already donated blood recently and must wait 90 days between donations.
+                        </p>
+                        <div className="mt-3 space-y-1 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-red-600" />
+                            <span className="text-red-700">
+                              <span className="font-semibold">Last Donation:</span>{' '}
+                              {donorEligibility.lastDonationDate
+                                ? new Date(donorEligibility.lastDonationDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  })
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-red-600" />
+                            <span className="text-red-700">
+                              <span className="font-semibold">Next Eligible Date:</span>{' '}
+                              {donorEligibility.nextEligibleDate
+                                ? new Date(donorEligibility.nextEligibleDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  })
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 bg-red-100 px-3 py-2 rounded-md border border-red-300">
+                              <AlertCircle className="h-5 w-5 text-red-700" />
+                              <span className="font-bold text-red-800 text-lg">
+                                {donorEligibility.daysRemaining} day{donorEligibility.daysRemaining !== 1 ? 's' : ''} remaining
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-red-600 mt-3 font-medium">
+                          ⛔ The system will block this donation if you attempt to submit.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Eligibility Check Loading */}
+                {selectedDonor && isCheckingEligibility && (
+                  <div className="mx-6 mb-4">
+                    <div className="flex items-center gap-3 rounded-lg border border-gray-300 bg-gray-50 p-4">
+                      <Loader2 className="h-5 w-5 text-gray-600 animate-spin" />
+                      <span className="text-sm text-gray-700">Checking donor eligibility...</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Eligible Donor Confirmation */}
+                {selectedDonor && donorEligibility && donorEligibility.isEligible && donorEligibility.lastDonationDate && (
+                  <div className="mx-6 mb-4">
+                    <div className="flex items-start gap-3 rounded-lg border border-green-300 bg-green-50 p-3">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-green-800">✓ Donor is Eligible</p>
+                        <p className="text-xs text-green-700 mt-0.5">
+                          Last donation: {new Date(donorEligibility.lastDonationDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })} — More than 90 days have passed.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -735,13 +829,15 @@ export default function BloodCollectionPage() {
                         id="units"
                         type="number"
                         min="1"
-                        value={formData.units}
-                        onChange={(e) =>
-                          setFormData({ ...formData, units: e.target.value })
-                        }
+                        max="1"
+                        value="1"
+                        disabled
+                        className="bg-gray-100 cursor-not-allowed"
                         required
                       />
-                      <p className="text-xs text-slate-500">1 unit = 450ml</p>
+                      <p className="text-xs text-slate-500">
+                        Individual donors can only donate 1 unit (450ml) per session
+                      </p>
                     </div>
 
                     <div className="space-y-2">
@@ -923,12 +1019,20 @@ export default function BloodCollectionPage() {
                   <Button
                     type="submit"
                     className="w-full bg-[#7F1D1D] hover:bg-[#991B1B]"
-                    disabled={recordCollection.isPending}
+                    disabled={
+                      recordCollection.isPending || 
+                      (selectedDonor && donorEligibility && !donorEligibility.isEligible)
+                    }
                   >
                     {recordCollection.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Recording...
+                      </>
+                    ) : selectedDonor && donorEligibility && !donorEligibility.isEligible ? (
+                      <>
+                        <AlertCircle className="mr-2 h-4 w-4" />
+                        Donor Not Eligible ({donorEligibility.daysRemaining} days remaining)
                       </>
                     ) : (
                       'Record Donation'

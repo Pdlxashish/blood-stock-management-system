@@ -61,7 +61,19 @@ export default function LoginPage() {
         window.location.href = redirectUrl;
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      const errorData = err.response?.data;
+      const errorMessage = errorData?.message || 'Login failed. Please check your credentials.';
+      
+      // Check if email verification is required
+      if (errorData?.requiresEmailVerification) {
+        setError(errorMessage);
+        // Redirect to OTP verification page after 2 seconds
+        setTimeout(() => {
+          router.push(`/verify-otp?email=${encodeURIComponent(errorData.email)}`);
+        }, 2000);
+        return;
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);

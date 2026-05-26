@@ -105,17 +105,20 @@ export default function PublicNav() {
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium">{user.name}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Role: <span className="font-medium">{user.role}</span>
+                    </p>
                   </div>
                   <DropdownMenuSeparator />
                   {user.role === 'ADMIN' || user.role === 'STAFF' ? (
                     <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
+                      Admin Dashboard
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem onClick={() => router.push('/home')}>
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Home
+                      Donor Home
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={() => router.push('/profile')}>

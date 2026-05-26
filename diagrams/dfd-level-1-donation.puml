@@ -1,0 +1,103 @@
+@startuml Blood Stock Management System - DFD Level 1 (Donation Processing)
+
+' Styling
+skinparam defaultTextAlignment center
+skinparam process {
+    BackgroundColor #BBDEFB
+    BorderColor #1976D2
+    FontSize 10
+}
+skinparam storage {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+}
+skinparam actor {
+    BackgroundColor #FFE0B2
+    BorderColor #E64A19
+}
+
+title Blood Stock Management System\nDFD Level 1 - Donation Processing (Process 3.0)
+
+' External Entities
+actor "Donor" as donor
+actor "Staff" as staff
+
+' Sub-processes
+rectangle "3.1\nValidate\nDonor\nEligibility" as P31 #BBDEFB
+rectangle "3.2\nRecord\nDonation\nDetails" as P32 #BBDEFB
+rectangle "3.3\nCreate\nBlood\nPack" as P33 #BBDEFB
+rectangle "3.4\nUpdate\nDonor\nHistory" as P34 #BBDEFB
+rectangle "3.5\nLink to\nEvent\n(Optional)" as P35 #BBDEFB
+rectangle "3.6\nGenerate\nDonation\nConfirmation" as P36 #BBDEFB
+
+' Data Stores
+database "D2: Donors" as D2 #FFF9C4
+database "D3: Donations" as D3 #FFF9C4
+database "D4: Blood Packs" as D4 #FFF9C4
+database "D6: Events" as D6 #FFF9C4
+database "D8: Blood Stock\nSummary" as D8 #FFF9C4
+
+' External Processes
+rectangle "2.0\nDonor\nManagement" as P2 #C8E6C9
+rectangle "4.0\nInventory\nManagement" as P4 #FFCCBC
+
+' Input Flows
+donor --> P31 : Donor ID
+staff --> P32 : Donation\nInformation
+
+' Process Flows
+P31 --> P32 : Eligibility\nConfirmed
+P32 --> P33 : Donation\nRecord
+P33 --> P34 : Blood Pack\nCreated
+P34 --> P35 : Updated\nHistory
+P35 --> P36 : Complete\nRecord
+P36 --> donor : Donation\nConfirmation
+P36 --> staff : Donation\nReceipt
+
+' Data Store Interactions
+P31 <--> D2 : Read Donor\nEligibility
+P32 --> D3 : Write Donation\nRecord
+P33 --> D4 : Create Blood\nPack
+P34 --> D2 : Update Last\nDonation Date
+P34 --> D2 : Increment\nTotal Donations
+P35 <--> D6 : Link Event\n(if applicable)
+P33 --> D8 : Update Stock\nSummary
+
+' Inter-Process Communication
+P2 --> P31 : Donor\nDetails
+P33 --> P4 : New Blood\nPack
+
+note right of P31
+  <b>Eligibility Check:</b>
+  • Last donation date
+  • Medical conditions
+  • Age and weight
+  • Current health status
+end note
+
+note right of P32
+  <b>Donation Details:</b>
+  • Blood group
+  • Units collected
+  • Donation date
+  • Location
+  • Storage location
+end note
+
+note right of P33
+  <b>Blood Pack Creation:</b>
+  • Generate pack code
+  • Set collection date
+  • Calculate expiry date
+  • Set status to AVAILABLE
+  • Link to donation
+end note
+
+note bottom of P34
+  Updates donor profile with:
+  • Last donation date
+  • Total donations count
+  • Recalculate eligibility
+end note
+
+@enduml

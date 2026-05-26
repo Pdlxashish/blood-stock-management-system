@@ -61,7 +61,9 @@ export const ModelName = {
   Event: 'Event',
   EventParticipant: 'EventParticipant',
   EventVolunteer: 'EventVolunteer',
-  Certificate: 'Certificate'
+  Certificate: 'Certificate',
+  Gallery: 'Gallery',
+  About: 'About'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -88,6 +90,9 @@ export const UserScalarFieldEnum = {
   phone: 'phone',
   role: 'role',
   isVerified: 'isVerified',
+  emailVerified: 'emailVerified',
+  otp: 'otp',
+  otpExpiry: 'otpExpiry',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -111,6 +116,10 @@ export const DonorScalarFieldEnum = {
   isEligible: 'isEligible',
   weight: 'weight',
   medicalNotes: 'medicalNotes',
+  verificationStatus: 'verificationStatus',
+  verifiedAt: 'verifiedAt',
+  verifiedBy: 'verifiedBy',
+  rejectionReason: 'rejectionReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -256,6 +265,45 @@ export const CertificateScalarFieldEnum = {
 } as const
 
 export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
+
+
+export const GalleryScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  imageKey: 'imageKey',
+  order: 'order',
+  isPublished: 'isPublished',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
+
+
+export const AboutScalarFieldEnum = {
+  id: 'id',
+  heroTitle: 'heroTitle',
+  heroSubtitle: 'heroSubtitle',
+  missionTitle: 'missionTitle',
+  missionContent: 'missionContent',
+  visionTitle: 'visionTitle',
+  visionContent: 'visionContent',
+  values: 'values',
+  storyTitle: 'storyTitle',
+  storyContent: 'storyContent',
+  stats: 'stats',
+  contactAddress: 'contactAddress',
+  contactPhone: 'contactPhone',
+  contactEmail: 'contactEmail',
+  contactEmergency: 'contactEmergency',
+  whatWeDo: 'whatWeDo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AboutScalarFieldEnum = (typeof AboutScalarFieldEnum)[keyof typeof AboutScalarFieldEnum]
 
 
 export const SortOrder = {

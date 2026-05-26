@@ -1,0 +1,186 @@
+@startuml Blood Stock Management System - Simplified Use Case Diagram
+
+' Styling
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    ArrowColor #424242
+    FontSize 11
+}
+skinparam actor {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+}
+
+title Blood Stock Management System\nUse Case Diagram
+
+' Actors
+:Guest: as guest
+:Donor: as donor
+:Staff: as staff  
+:Admin: as admin
+
+' System boundary
+rectangle "Blood Stock Management System" {
+    
+    ' Core Authentication
+    package "Authentication" #LightYellow {
+        (Register Account) as register
+        (Login) as login
+        (Claim Account) as claim
+        (Update Profile) as profile
+    }
+    
+    ' Donor Operations
+    package "Donor Management" #LightGreen {
+        (Register as Donor) as regDonor
+        (View Donor List) as viewDonors
+        (Search Donors) as searchDonors
+        (Find Nearby Donors) as nearbyDonors
+        (Manage Donor Status) as manageDonor
+    }
+    
+    ' Donation Operations
+    package "Donation Management" #LightBlue {
+        (Record Donation) as recordDonation
+        (View Donation History) as viewDonations
+        (View My Donations) as myDonations
+        (Generate Donation Report) as donationReport
+    }
+    
+    ' Inventory Operations
+    package "Blood Inventory" #LightCoral {
+        (Add Blood Pack) as addPack
+        (View Blood Stock) as viewStock
+        (Monitor Expiry Dates) as monitorExpiry
+        (Update Pack Status) as updatePack
+        (Generate Inventory Report) as inventoryReport
+    }
+    
+    ' Issuance Operations
+    package "Blood Issuance" #LightPink {
+        (Issue Blood) as issueBlood
+        (View Issuance History) as viewIssuance
+        (Search Available Blood) as searchBlood
+        (Generate Receipt) as receipt
+    }
+    
+    ' Event Operations
+    package "Event Management" #Lavender {
+        (Create Event) as createEvent
+        (View Events) as viewEvents
+        (Register for Event) as registerEvent
+        (Volunteer for Event) as volunteer
+        (Manage Participants) as manageParticipants
+    }
+    
+    ' Certificate Operations
+    package "Certificates" #LightCyan {
+        (Generate Certificate) as genCert
+        (View My Certificates) as myCerts
+        (Download Certificate) as downloadCert
+        (Manage Certificates) as manageCerts
+    }
+    
+    ' Admin Operations
+    package "User & System Management" #Wheat {
+        (Manage Users) as manageUsers
+        (View Dashboard) as dashboard
+        (View Analytics) as analytics
+        (Export Reports) as exportReports
+    }
+}
+
+' Guest relationships
+guest --> register
+guest --> login
+guest --> viewEvents
+
+' Donor relationships
+donor --> login
+donor --> profile
+donor --> claim
+donor --> regDonor
+donor --> myDonations
+donor --> viewEvents
+donor --> registerEvent
+donor --> volunteer
+donor --> myCerts
+donor --> downloadCert
+
+' Staff relationships
+staff --> login
+staff --> profile
+staff --> viewDonors
+staff --> searchDonors
+staff --> nearbyDonors
+staff --> recordDonation
+staff --> viewDonations
+staff --> addPack
+staff --> viewStock
+staff --> monitorExpiry
+staff --> updatePack
+staff --> issueBlood
+staff --> viewIssuance
+staff --> searchBlood
+staff --> receipt
+staff --> createEvent
+staff --> viewEvents
+staff --> manageParticipants
+staff --> genCert
+staff --> manageCerts
+staff --> dashboard
+
+' Admin relationships (extends Staff)
+admin -up-|> staff : extends
+
+admin --> manageDonor
+admin --> donationReport
+admin --> inventoryReport
+admin --> manageUsers
+admin --> analytics
+admin --> exportReports
+
+' Include/Extend relationships
+regDonor .> register : <<include>>
+recordDonation .> addPack : <<include>>
+issueBlood .> updatePack : <<include>>
+genCert .> viewDonations : <<include>>
+claim .> login : <<extend>>
+nearbyDonors .> searchDonors : <<extend>>
+
+' Notes
+note right of admin
+  <b>Admin Role</b>
+  • All Staff permissions
+  • User management
+  • System configuration
+  • Advanced analytics
+end note
+
+note right of donor
+  <b>Donor Role</b>
+  • Personal profile
+  • Donation history
+  • Event registration
+  • Certificate access
+end note
+
+note right of staff
+  <b>Staff Role</b>
+  • Donor management
+  • Record donations
+  • Manage inventory
+  • Issue blood
+  • Event coordination
+end note
+
+note bottom of "Blood Stock Management System"
+  <b>System Overview</b>
+  Complete blood bank management solution covering donor registration,
+  blood collection, inventory tracking, distribution, and event management.
+end note
+
+@enduml

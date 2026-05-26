@@ -22,6 +22,12 @@ model User {
   phone      String
   role       Role     @default(DONOR)
   isVerified Boolean  @default(false)
+  
+  // Email verification
+  emailVerified Boolean  @default(false)
+  otp           String?
+  otpExpiry     DateTime?
+  
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -64,6 +70,12 @@ model Donor {
   weight          Float?
   medicalNotes    String?
   
+  // Verification status
+  verificationStatus DonorVerificationStatus @default(PENDING)
+  verifiedAt      DateTime?
+  verifiedBy      String?   // User ID of the person who verified
+  rejectionReason String?   // Reason if rejected
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -75,6 +87,7 @@ model Donor {
   @@index([isEligible])
   @@index([latitude, longitude])
   @@index([donorType])
+  @@index([verificationStatus])
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -391,5 +404,70 @@ enum VolunteerStatus {
 enum CertificateType {
   DONATION
   VOLUNTEER
+}
+
+enum DonorVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GALLERY MANAGEMENT (for public images page)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+  imageKey    String?  // For cloud storage reference
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([order])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ABOUT PAGE CONTENT MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+model About {
+  id          String   @id @default(cuid())
+  
+  // Hero Section
+  heroTitle       String   @default("About VitalFlow")
+  heroSubtitle    String   @default("We're on a mission to make blood donation accessible, efficient, and impactful for everyone.")
+  
+  // Mission & Vision
+  missionTitle    String   @default("Our Mission")
+  missionContent  String   @default("To create a seamless bridge between blood donors and those in need, ensuring that no life is lost due to blood shortage.")
+  visionTitle     String   @default("Our Vision")
+  visionContent   String   @default("A world where every person has access to safe blood when they need it.")
+  
+  // Values (stored as JSON)
+  values          String   @default("[{\"title\":\"Community First\",\"description\":\"We believe in the power of community and collective action to save lives.\",\"icon\":\"Users\"},{\"title\":\"Excellence\",\"description\":\"We maintain the highest standards in blood collection, storage, and distribution.\",\"icon\":\"Award\"},{\"title\":\"Compassion\",\"description\":\"Every interaction is guided by empathy and understanding of the critical nature of our work.\",\"icon\":\"Heart\"}]")
+  
+  // Story Section
+  storyTitle      String   @default("Our Story")
+  storyContent    String   @default("VitalFlow was founded with a simple yet powerful idea: use technology to save lives through better blood donation management.")
+  
+  // Stats (stored as JSON)
+  stats           String   @default("[{\"label\":\"Active Donors\",\"value\":\"500+\"},{\"label\":\"Lives Saved\",\"value\":\"1,200+\"},{\"label\":\"Partner Hospitals\",\"value\":\"25+\"},{\"label\":\"Blood Units Collected\",\"value\":\"3,000+\"}]")
+  
+  // Contact Information
+  contactAddress  String   @default("123 Blood Bank Street, Medical District, City 12345")
+  contactPhone    String   @default("+1 (555) 123-4567")
+  contactEmail    String   @default("info@bloodbank.org")
+  contactEmergency String  @default("+1 (555) 999-BLOOD")
+  
+  // What We Do sections (stored as JSON)
+  whatWeDo        String   @default("[{\"title\":\"Blood Collection\",\"description\":\"We organize regular blood donation camps and operate mobile collection units.\"},{\"title\":\"Testing & Processing\",\"description\":\"Every unit of blood is thoroughly tested and processed following international standards.\"},{\"title\":\"Storage & Distribution\",\"description\":\"We maintain state-of-the-art storage facilities and efficient distribution systems.\"},{\"title\":\"Community Engagement\",\"description\":\"We conduct awareness programs, donor recruitment drives, and educational initiatives.\"}]")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
  

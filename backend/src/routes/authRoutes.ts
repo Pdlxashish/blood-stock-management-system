@@ -4,6 +4,7 @@ import {
   loginUser,
   getUserProfile,
   updateUserProfile,
+  adminLogin,
 } from '../controllers/authController';
 import { protect } from '../middleware/authMiddleware';
 
@@ -12,6 +13,7 @@ const router = Router();
 // Public Routes
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/admin', adminLogin);
 
 // Handle wrong methods
 router.get('/login', (_, res) =>

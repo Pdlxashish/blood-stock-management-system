@@ -88,13 +88,17 @@ export default function ClaimAccountPage() {
         throw new Error(data.message || 'Failed to claim account');
       }
 
-      // Save token
+      // Save token and user data
       localStorage.setItem('token', data.data.token);
+      if (data.data.user) {
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+      }
       
       setSuccess('Account claimed successfully! Redirecting...');
       
       setTimeout(() => {
-        router.push('/dashboard');
+        // Donors should go to their home page, not admin dashboard
+        router.push('/home');
       }, 2000);
     } catch (err: any) {
       setError(err.message);

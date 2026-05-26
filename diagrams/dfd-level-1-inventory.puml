@@ -1,0 +1,121 @@
+@startuml Blood Stock Management System - DFD Level 1 (Inventory Management)
+
+' Styling
+skinparam defaultTextAlignment center
+skinparam process {
+    BackgroundColor #FFCCBC
+    BorderColor #E64A19
+    FontSize 10
+}
+skinparam storage {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+}
+skinparam actor {
+    BackgroundColor #FFE0B2
+    BorderColor #E64A19
+}
+
+title Blood Stock Management System\nDFD Level 1 - Inventory Management (Process 4.0)
+
+' External Entities
+actor "Staff" as staff
+actor "Admin" as admin
+
+' Sub-processes
+rectangle "4.1\nAdd/Update\nBlood\nPack" as P41 #FFCCBC
+rectangle "4.2\nMonitor\nExpiry\nDates" as P42 #FFCCBC
+rectangle "4.3\nUpdate\nPack\nStatus" as P43 #FFCCBC
+rectangle "4.4\nCalculate\nStock\nSummary" as P44 #FFCCBC
+rectangle "4.5\nGenerate\nStock\nAlerts" as P45 #FFCCBC
+rectangle "4.6\nSearch &\nFilter\nInventory" as P46 #FFCCBC
+rectangle "4.7\nGenerate\nInventory\nReports" as P47 #FFCCBC
+
+' Data Stores
+database "D4: Blood Packs" as D4 #FFF9C4
+database "D8: Blood Stock\nSummary" as D8 #FFF9C4
+
+' External Processes
+rectangle "3.0\nDonation\nProcessing" as P3 #BBDEFB
+rectangle "5.0\nBlood\nIssuance" as P5 #F8BBD0
+rectangle "8.0\nReporting\n& Analytics" as P8 #FFF9C4
+
+' Input Flows
+staff --> P41 : Blood Pack\nData
+staff --> P46 : Search\nCriteria
+admin --> P47 : Report\nRequest
+
+' Process Flows
+P41 --> P44 : New/Updated\nPack
+P42 --> P43 : Expired\nPacks
+P43 --> P44 : Status\nChange
+P44 --> P45 : Stock\nLevels
+P45 --> staff : Low Stock\nAlert
+P45 --> staff : Expiry\nAlert
+P46 --> staff : Search\nResults
+P47 --> admin : Inventory\nReport
+
+' Data Store Interactions
+P41 <--> D4 : Write/Update\nBlood Pack
+P42 <--> D4 : Read Expiry\nDates
+P43 --> D4 : Update Pack\nStatus
+P44 <--> D4 : Read All\nPacks
+P44 --> D8 : Update Stock\nSummary
+P46 <--> D4 : Query Blood\nPacks
+P47 <--> D4 : Read Inventory\nData
+P47 <--> D8 : Read Stock\nSummary
+
+' Inter-Process Communication
+P3 --> P41 : New Blood\nPack
+P5 --> P43 : Pack Status\nUpdate
+P44 --> P8 : Stock\nStatistics
+P47 --> P8 : Report\nData
+
+note right of P41
+  <b>Blood Pack Data:</b>
+  • Pack code (unique)
+  • Blood group
+  • Collection date
+  • Expiry date (calculated)
+  • Storage location
+  • Donor ID
+  • Donation ID
+  • Initial status: AVAILABLE
+end note
+
+note right of P42
+  <b>Expiry Monitoring:</b>
+  • Daily automated check
+  • Identify packs expiring soon
+  • Mark expired packs
+  • Generate alerts
+  • Threshold: 7 days
+end note
+
+note right of P43
+  <b>Status Updates:</b>
+  • AVAILABLE → USED
+  • AVAILABLE → EXPIRED
+  • AVAILABLE → RESERVED
+  • Track status history
+end note
+
+note bottom of P44
+  <b>Stock Summary Calculation:</b>
+  For each blood group:
+  • Count AVAILABLE packs
+  • Count USED packs
+  • Count EXPIRED packs
+  • Calculate total
+  • Update timestamp
+end note
+
+note bottom of P45
+  <b>Alert Conditions:</b>
+  • Stock below threshold
+  • Packs expiring within 7 days
+  • Zero stock for blood group
+  • Unusual usage patterns
+end note
+
+@enduml

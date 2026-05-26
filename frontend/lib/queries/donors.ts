@@ -66,9 +66,10 @@ export function useDonors(filters?: any, page?: number, limit?: number) {
   return useQuery({
     queryKey: donorKeys.list({ ...filters, ...(shouldPaginate && { page: actualPage, limit: actualLimit }) }),
     queryFn: async () => {
+      // Default to only showing VERIFIED donors in admin dashboard
       const params = shouldPaginate 
-        ? { ...filters, page: actualPage, limit: actualLimit }
-        : filters;
+        ? { verificationStatus: 'VERIFIED', ...filters, page: actualPage, limit: actualLimit }
+        : { verificationStatus: 'VERIFIED', ...filters };
       
       const response = await axiosInstance.get<{ status: string; data: Donor[]; pagination?: any }>(
         API_PATHS.DONOR.GET_ALL,
@@ -117,6 +118,29 @@ export function useDonorByUserId(userId: string) {
       return Array.isArray(donors) ? donors[0] || null : null;
     },
     enabled: !!userId,
+  });
+}
+
+// Fetch 90-day donation eligibility for a user
+export interface DonorEligibility {
+  isEligible: boolean;
+  lastDonationDate: string | null;
+  nextEligibleDate: string | null;
+  daysRemaining: number;
+}
+
+export function useDonorEligibility(userId: string) {
+  return useQuery({
+    queryKey: [...donorKeys.all, 'eligibility', userId],
+    queryFn: async () => {
+      const response = await axiosInstance.get<{ status: string; data: DonorEligibility }>(
+        API_PATHS.DONOR.GET_ELIGIBILITY(userId)
+      );
+      return response.data.data;
+    },
+    enabled: !!userId,
+    // Refresh every 5 minutes so the countdown stays reasonably fresh
+    staleTime: 5 * 60 * 1000,
   });
 }
 

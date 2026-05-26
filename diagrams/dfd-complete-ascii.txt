@@ -1,0 +1,522 @@
+╔═══════════════════════════════════════════════════════════════════════════════════════════════╗
+║                    BLOOD STOCK MANAGEMENT SYSTEM - DATA FLOW DIAGRAMS                         ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+CONTEXT DIAGRAM (DFD LEVEL 0)
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+                                    ┌─────────────────┐
+                                    │     DONOR       │
+                                    └────────┬────────┘
+                                             │
+                    Registration Details     │     Donation Confirmation
+                    Donation Information     │     Certificate
+                    Event Registration       │     Event Details
+                    Location Data            │     Eligibility Status
+                                             │
+                                             ↓
+    ┌─────────────┐                 ┌───────────────────┐                 ┌─────────────┐
+    │    STAFF    │←───────────────→│  BLOOD STOCK      │←───────────────→│    ADMIN    │
+    └─────────────┘                 │  MANAGEMENT       │                 └─────────────┘
+                                    │  SYSTEM           │
+    Donor Records                   └───────────────────┘                 User Management
+    Blood Pack Details                       ↕                            System Config
+    Donation Records                         │                            Report Requests
+    Issuance Info                            │
+    Event Data                               │                            System Reports
+                                             │                            Analytics Data
+    Inventory Reports                        │                            User Activity Logs
+    Donor Lists                              │                            Stock Statistics
+    Stock Alerts                             │
+    Issuance Receipts                        │
+                                             ↓
+                                    ┌─────────────────┐
+                                    │   RECIPIENT     │
+                                    └─────────────────┘
+                                             ↕
+                    Blood Request            │     Blood Availability
+                    Recipient Details        │     Issuance Receipt
+                                             │     Blood Pack Info
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+DFD LEVEL 0 - MAIN PROCESSES
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+EXTERNAL ENTITIES:
+┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────────┐
+│  Donor  │  │  Staff  │  │  Admin  │  │  Recipient  │
+└────┬────┘  └────┬────┘  └────┬────┘  └──────┬──────┘
+     │            │            │               │
+     │            │            │               │
+     └────────────┴────────────┴───────────────┘
+                              │
+                              ↓
+╔═══════════════════════════════════════════════════════════════════════════════════════════╗
+║                           MAIN SYSTEM PROCESSES                                           ║
+║                                                                                           ║
+║  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐                  ║
+║  │   1.0            │    │   2.0            │    │   3.0            │                  ║
+║  │   User           │───→│   Donor          │───→│   Donation       │                  ║
+║  │   Authentication │    │   Management     │    │   Processing     │                  ║
+║  │   & Management   │    │                  │    │                  │                  ║
+║  └────────┬─────────┘    └────────┬─────────┘    └────────┬─────────┘                  ║
+║           │                       │                       │                             ║
+║           ↓                       ↓                       ↓                             ║
+║     ┌──────────┐            ┌──────────┐          ┌──────────┐                         ║
+║     │D1: Users │            │D2: Donors│          │D3: Donations│                       ║
+║     └──────────┘            └──────────┘          └──────────┘                         ║
+║                                                                                          ║
+║  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐                  ║
+║  │   4.0            │    │   5.0            │    │   6.0            │                  ║
+║  │   Inventory      │───→│   Blood          │    │   Event          │                  ║
+║  │   Management     │    │   Issuance       │    │   Management     │                  ║
+║  │                  │    │                  │    │                  │                  ║
+║  └────────┬─────────┘    └────────┬─────────┘    └────────┬─────────┘                  ║
+║           │                       │                       │                             ║
+║           ↓                       ↓                       ↓                             ║
+║     ┌──────────┐            ┌──────────┐          ┌──────────┐                         ║
+║     │D4: Blood │            │D5: Blood │          │D6: Events│                         ║
+║     │   Packs  │            │  Issues  │          │          │                         ║
+║     └──────────┘            └──────────┘          └──────────┘                         ║
+║                                                                                          ║
+║  ┌──────────────────┐    ┌──────────────────┐                                          ║
+║  │   7.0            │    │   8.0            │                                          ║
+║  │   Certificate    │    │   Reporting      │                                          ║
+║  │   Generation     │    │   & Analytics    │                                          ║
+║  │                  │    │                  │                                          ║
+║  └────────┬─────────┘    └────────┬─────────┘                                          ║
+║           │                       │                                                     ║
+║           ↓                       ↓                                                     ║
+║     ┌──────────┐            ┌──────────┐                                               ║
+║     │D7: Cert- │            │D8: Blood │                                               ║
+║     │ ificates │            │  Stock   │                                               ║
+║     └──────────┘            │ Summary  │                                               ║
+║                             └──────────┘                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+DFD LEVEL 1 - DONATION PROCESSING (Process 3.0)
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────┐                                                              ┌─────────┐
+│  Donor  │                                                              │  Staff  │
+└────┬────┘                                                              └────┬────┘
+     │ Donor ID                                                               │
+     │                                                                        │ Donation Info
+     ↓                                                                        ↓
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                         DONATION PROCESSING SUBSYSTEM                                   │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     3.1      │      │     3.2      │      │     3.3      │                         │
+│  │   Validate   │─────→│   Record     │─────→│   Create     │                         │
+│  │    Donor     │      │  Donation    │      │    Blood     │                         │
+│  │  Eligibility │      │   Details    │      │     Pack     │                         │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘                         │
+│         │                     │                     │                                  │
+│         ↓                     ↓                     ↓                                  │
+│   ┌──────────┐          ┌──────────┐          ┌──────────┐                            │
+│   │D2: Donors│          │D3: Dona- │          │D4: Blood │                            │
+│   │          │          │   tions  │          │   Packs  │                            │
+│   └──────────┘          └──────────┘          └──────────┘                            │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     3.4      │      │     3.5      │      │     3.6      │                         │
+│  │   Update     │─────→│   Link to    │─────→│   Generate   │                         │
+│  │    Donor     │      │    Event     │      │  Donation    │                         │
+│  │   History    │      │  (Optional)  │      │ Confirmation │                         │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘                         │
+│         │                     │                     │                                  │
+│         ↓                     ↓                     │                                  │
+│   ┌──────────┐          ┌──────────┐               │                                  │
+│   │D2: Donors│          │D6: Events│               │                                  │
+│   │ (Update) │          │          │               │                                  │
+│   └──────────┘          └──────────┘               │                                  │
+│                                                     │                                  │
+└─────────────────────────────────────────────────────┼──────────────────────────────────┘
+                                                      │
+                                                      ↓
+                                            Donation Confirmation
+                                            (to Donor & Staff)
+
+PROCESS DETAILS:
+
+3.1 - Validate Donor Eligibility
+    Input:  Donor ID
+    Check:  • Last donation date (minimum 3 months gap)
+            • Medical conditions
+            • Age (18-65 years)
+            • Weight (minimum 50 kg)
+            • Current health status
+    Output: Eligibility status (Approved/Rejected)
+
+3.2 - Record Donation Details
+    Input:  • Donor ID
+            • Blood group
+            • Units collected
+            • Donation date
+            • Location
+            • Storage location
+            • Notes
+    Output: Donation record created
+
+3.3 - Create Blood Pack
+    Input:  Donation record
+    Process: • Generate unique pack code
+             • Set collection date
+             • Calculate expiry date (42 days)
+             • Set status to AVAILABLE
+             • Link to donation and donor
+    Output: Blood pack record
+
+3.4 - Update Donor History
+    Input:  Donation record
+    Update: • Last donation date
+            • Increment total donations count
+            • Recalculate eligibility
+    Output: Updated donor profile
+
+3.5 - Link to Event (Optional)
+    Input:  Event ID (if donation during event)
+    Process: Link donation to event
+    Output: Event-linked donation
+
+3.6 - Generate Donation Confirmation
+    Input:  Complete donation record
+    Output: • Confirmation receipt for donor
+            • Donation record for staff
+            • Trigger certificate generation
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+DFD LEVEL 1 - BLOOD ISSUANCE (Process 5.0)
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────┐                                                          ┌─────────┐
+│  Recipient  │                                                          │  Staff  │
+└──────┬──────┘                                                          └────┬────┘
+       │ Blood Request                                                        │
+       │ Recipient Details                                                    │
+       ↓                                                                      ↓
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                         BLOOD ISSUANCE SUBSYSTEM                                        │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     5.1      │      │     5.2      │      │     5.3      │                         │
+│  │   Receive    │─────→│    Check     │─────→│   Select     │                         │
+│  │    Blood     │      │    Blood     │      │    Blood     │                         │
+│  │   Request    │      │ Availability │      │    Packs     │                         │
+│  └──────────────┘      └──────┬───────┘      └──────┬───────┘                         │
+│                               │                     │                                  │
+│                               ↓                     ↓                                  │
+│                         ┌──────────┐          ┌──────────┐                            │
+│                         │D4: Blood │          │D4: Blood │                            │
+│                         │   Packs  │          │   Packs  │                            │
+│                         │ (Query)  │          │  (Read)  │                            │
+│                         └──────────┘          └──────────┘                            │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     5.4      │      │     5.5      │      │     5.6      │                         │
+│  │   Create     │─────→│   Update     │─────→│   Update     │                         │
+│  │  Issuance    │      │  Blood Pack  │      │  Inventory   │                         │
+│  │   Record     │      │   Status     │      │   Summary    │                         │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘                         │
+│         │                     │                     │                                  │
+│         ↓                     ↓                     ↓                                  │
+│   ┌──────────┐          ┌──────────┐          ┌──────────┐                            │
+│   │D5: Blood │          │D4: Blood │          │D8: Blood │                            │
+│   │  Issues  │          │   Packs  │          │  Stock   │                            │
+│   │          │          │ (Update) │          │ Summary  │                            │
+│   └──────────┘          └──────────┘          └──────────┘                            │
+│                                                                                         │
+│                         ┌──────────────┐                                               │
+│                         │     5.7      │                                               │
+│                         │   Generate   │                                               │
+│                         │  Issuance    │                                               │
+│                         │   Receipt    │                                               │
+│                         └──────┬───────┘                                               │
+│                                │                                                        │
+└────────────────────────────────┼────────────────────────────────────────────────────────┘
+                                 │
+                                 ↓
+                    Issuance Receipt & Confirmation
+                    (to Recipient & Staff)
+
+PROCESS DETAILS:
+
+5.1 - Receive Blood Request
+    Input:  • Recipient name
+            • Recipient type (Person/Organization/Hospital)
+            • Blood group required
+            • Units needed
+            • Contact details
+            • Urgency level
+    Output: Blood request record
+
+5.2 - Check Blood Availability
+    Input:  Blood group, units needed
+    Query:  • Search available blood packs
+            • Check expiry dates
+            • Verify pack status (AVAILABLE)
+            • Calculate available units
+    Output: Availability status and pack list
+
+5.3 - Select Blood Packs
+    Input:  Available blood packs
+    Logic:  • FIFO (First In, First Out)
+            • Prioritize nearest expiry
+            • Match blood group exactly
+            • Select required number of units
+    Output: Selected blood pack IDs
+
+5.4 - Create Issuance Record
+    Input:  • Request details
+            • Selected blood packs
+            • Staff ID (issued by)
+    Create: • Generate unique issue code
+            • Record all details
+            • Link blood packs
+    Output: Issuance record
+
+5.5 - Update Blood Pack Status
+    Input:  Selected blood pack IDs
+    Update: Change status from AVAILABLE to USED
+    Output: Updated blood packs
+
+5.6 - Update Inventory Summary
+    Input:  Blood group, units issued
+    Update: • Decrement available count
+            • Increment used count
+            • Update timestamp
+    Output: Updated stock summary
+
+5.7 - Generate Issuance Receipt
+    Input:  Complete issuance record
+    Output: • Receipt for recipient
+            • Confirmation for staff
+            • Audit trail entry
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+DFD LEVEL 1 - INVENTORY MANAGEMENT (Process 4.0)
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────┐                                                              ┌─────────┐
+│  Staff  │                                                              │  Admin  │
+└────┬────┘                                                              └────┬────┘
+     │ Blood Pack Data                                                        │
+     │ Search Criteria                                                        │ Report Request
+     ↓                                                                        ↓
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                       INVENTORY MANAGEMENT SUBSYSTEM                                    │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     4.1      │      │     4.2      │      │     4.3      │                         │
+│  │  Add/Update  │      │   Monitor    │─────→│   Update     │                         │
+│  │    Blood     │      │    Expiry    │      │     Pack     │                         │
+│  │     Pack     │      │    Dates     │      │    Status    │                         │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘                         │
+│         │                     │                     │                                  │
+│         ↓                     ↓                     ↓                                  │
+│   ┌──────────┐          ┌──────────┐          ┌──────────┐                            │
+│   │D4: Blood │          │D4: Blood │          │D4: Blood │                            │
+│   │   Packs  │          │   Packs  │          │   Packs  │                            │
+│   │ (Write)  │          │  (Read)  │          │ (Update) │                            │
+│   └──────────┘          └──────────┘          └──────────┘                            │
+│                                                                                         │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐                         │
+│  │     4.4      │      │     4.5      │      │     4.6      │                         │
+│  │  Calculate   │─────→│   Generate   │      │   Search &   │                         │
+│  │    Stock     │      │    Stock     │      │    Filter    │                         │
+│  │   Summary    │      │   Alerts     │      │  Inventory   │                         │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘                         │
+│         │                     │                     │                                  │
+│         ↓                     ↓                     ↓                                  │
+│   ┌──────────┐               │                ┌──────────┐                            │
+│   │D8: Blood │               │                │D4: Blood │                            │
+│   │  Stock   │               │                │   Packs  │                            │
+│   │ Summary  │               │                │ (Query)  │                            │
+│   └──────────┘               │                └──────────┘                            │
+│                              │                                                         │
+│                 ┌────────────┴────────────┐                                           │
+│                 │                         │                                           │
+│                 ↓                         ↓                                           │
+│          Low Stock Alert           Expiry Alert                                       │
+│          (to Staff)                (to Staff)                                         │
+│                                                                                         │
+│                         ┌──────────────┐                                               │
+│                         │     4.7      │                                               │
+│                         │   Generate   │                                               │
+│                         │  Inventory   │                                               │
+│                         │   Reports    │                                               │
+│                         └──────┬───────┘                                               │
+│                                │                                                        │
+│                                ↓                                                        │
+│                          ┌──────────┐                                                  │
+│                          │D4: Blood │                                                  │
+│                          │   Packs  │                                                  │
+│                          │  (Read)  │                                                  │
+│                          └──────────┘                                                  │
+│                                │                                                        │
+└────────────────────────────────┼────────────────────────────────────────────────────────┘
+                                 │
+                                 ↓
+                         Inventory Report
+                         (to Admin)
+
+PROCESS DETAILS:
+
+4.1 - Add/Update Blood Pack
+    Input:  • Pack code
+            • Blood group
+            • Collection date
+            • Expiry date
+            • Storage location
+            • Donor ID
+            • Donation ID
+    Output: Blood pack record created/updated
+
+4.2 - Monitor Expiry Dates
+    Process: • Daily automated check
+             • Query all blood packs
+             • Compare expiry dates with current date
+             • Identify packs expiring within 7 days
+             • Identify expired packs
+    Output: List of expiring/expired packs
+
+4.3 - Update Pack Status
+    Input:  Pack IDs and new status
+    Update: • Change status (AVAILABLE → EXPIRED)
+            • Record status change timestamp
+            • Maintain status history
+    Output: Updated blood packs
+
+4.4 - Calculate Stock Summary
+    Process: For each blood group:
+             • Count AVAILABLE packs
+             • Count USED packs
+             • Count EXPIRED packs
+             • Calculate total
+             • Update last updated timestamp
+    Output: Updated stock summary
+
+4.5 - Generate Stock Alerts
+    Conditions: • Stock below minimum threshold (e.g., < 5 units)
+                • Packs expiring within 7 days
+                • Zero stock for any blood group
+                • Unusual usage patterns
+    Output: Alert notifications to staff
+
+4.6 - Search & Filter Inventory
+    Input:  Search criteria (blood group, status, date range, location)
+    Query:  Filter blood packs based on criteria
+    Output: Filtered blood pack list
+
+4.7 - Generate Inventory Reports
+    Input:  Report parameters (date range, blood group, etc.)
+    Process: • Aggregate inventory data
+             • Calculate statistics
+             • Format report
+    Output: Comprehensive inventory report
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+DATA STORES DESCRIPTION
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+D1: Users
+    • User ID (Primary Key)
+    • Email (Unique)
+    • Password (Hashed)
+    • Name
+    • Phone
+    • Role (DONOR, STAFF, ADMIN)
+    • Is Verified
+    • Created At
+    • Updated At
+
+D2: Donors
+    • Donor ID (Primary Key)
+    • User ID (Foreign Key)
+    • Blood Group
+    • Donor Type (PERSON, ORGANIZATION)
+    • Location
+    • City
+    • Address
+    • Date of Birth
+    • Latitude, Longitude
+    • Last Donation Date
+    • Total Donations
+    • Is Eligible
+    • Weight
+    • Medical Notes
+
+D3: Donations
+    • Donation ID (Primary Key)
+    • User ID (Foreign Key)
+    • Donor ID (Foreign Key)
+    • Event ID (Foreign Key, Optional)
+    • Blood Group
+    • Units
+    • Donation Date
+    • Location
+    • Donation Type
+    • Status
+    • Notes
+    • Contact
+    • Storage Location
+
+D4: Blood Packs
+    • Pack ID (Primary Key)
+    • Pack Code (Unique)
+    • Blood Group
+    • Donor ID (Foreign Key)
+    • Donation ID (Foreign Key)
+    • Collection Date
+    • Expiry Date
+    • Status (AVAILABLE, USED, EXPIRED, RESERVED)
+    • Storage Location
+
+D5: Blood Issues
+    • Issue ID (Primary Key)
+    • Issue Code (Unique)
+    • Recipient Name
+    • Recipient Type
+    • Blood Group
+    • Units Requested
+    • Units Issued
+    • Contact
+    • Issue Date
+    • Issued By (User ID)
+    • Status
+    • Notes
+
+D6: Events
+    • Event ID (Primary Key)
+    • Title
+    • Description
+    • Location
+    • Event Date
+    • Status
+    • Capacity
+
+D7: Certificates
+    • Certificate ID (Primary Key)
+    • Certificate Number (Unique)
+    • Type (DONATION, VOLUNTEER)
+    • User ID (Foreign Key)
+    • Recipient Name
+    • Event Title
+    • Volunteer ID
+    • Issue Date
+
+D8: Blood Stock Summary
+    • Summary ID (Primary Key)
+    • Blood Group (Unique)
+    • Available Count
+    • Used Count
+    • Expired Count
+    • Total Count
+    • Last Updated
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+END OF DATA FLOW DIAGRAMS
+═══════════════════════════════════════════════════════════════════════════════════════════════

@@ -318,6 +318,25 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
       }
     }
 
+    // ✅ Enforce 90-day donation cooldown for registered (verified) users
+    if (userId && donor) {
+      // Only enforce cooldown for PERSON donors (not organizations)
+      if (donor.donorType !== 'ORGANIZATION' && donor.lastDonationDate) {
+        const nextEligibleDate = new Date(donor.lastDonationDate);
+        nextEligibleDate.setDate(nextEligibleDate.getDate() + 90);
+        const now = new Date();
+
+        if (now < nextEligibleDate) {
+          const msRemaining = nextEligibleDate.getTime() - now.getTime();
+          const daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
+          throw new AppError(
+            `This donor is not eligible to donate yet. They can donate again in ${daysRemaining} day(s) on ${nextEligibleDate.toLocaleDateString()}.`,
+            400
+          );
+        }
+      }
+    }
+
     // Create donation record
     const donation = await tx.donation.create({
       data: {

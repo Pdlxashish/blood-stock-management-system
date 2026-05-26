@@ -18,16 +18,56 @@ const axiosInstance = axios.create({
 });
 
 /**
+ * Get token from localStorage (Zustand persisted store or direct storage)
+ * Checks both Zustand auth-storage and direct token storage for backward compatibility
+ */
+const getToken = (): string | null => {
+  // First try to get from direct localStorage (backward compatibility)
+  const directToken = localStorage.getItem("token");
+  if (directToken) {
+    return directToken;
+  }
+  
+  // Then try to get from Zustand persisted store
+  try {
+    const authStorage = localStorage.getItem("auth-storage");
+    if (authStorage) {
+      const parsed = JSON.parse(authStorage);
+      return parsed.state?.token || null;
+    }
+  } catch (error) {
+    console.error("Error parsing auth storage:", error);
+  }
+  
+  return null;
+};
+
+/**
  * Request Interceptor
  * Automatically attaches JWT token to all requests
  */
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
-    const token = localStorage.getItem("token");
+    // Get token from storage
+    const token = getToken();
+    
+    // Debug logging
+    console.log('[axiosInstance] Request to:', config.url);
+    console.log('[axiosInstance] Token found:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+    console.log('[axiosInstance] Direct token:', localStorage.getItem("token") ? 'EXISTS' : 'MISSING');
+    console.log('[axiosInstance] Auth storage:', localStorage.getItem("auth-storage") ? 'EXISTS' : 'MISSING');
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('[axiosInstance] Authorization header set');
+    } else {
+      console.warn('[axiosInstance] NO TOKEN - Request will be unauthorized');
+    }
+    
+    // Don't override Content-Type if it's already set (e.g., for multipart/form-data)
+    // Axios will automatically set the correct Content-Type for FormData
+    if (config.data instanceof FormData && config.headers['Content-Type'] === 'multipart/form-data') {
+      delete config.headers['Content-Type'];
     }
     
     return config;

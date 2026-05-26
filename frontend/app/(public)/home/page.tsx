@@ -72,7 +72,8 @@ export default function DonorHomePage() {
 
     // Only donors should access this page
     if (userData.role !== 'DONOR') {
-      router.push('/dashboard');
+      // Non-donors should not access this page - redirect to login
+      router.push('/login');
       return;
     }
 

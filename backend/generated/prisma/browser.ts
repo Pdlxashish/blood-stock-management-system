@@ -72,3 +72,13 @@ export type EventVolunteer = Prisma.EventVolunteerModel
  * 
  */
 export type Certificate = Prisma.CertificateModel
+/**
+ * Model Gallery
+ * 
+ */
+export type Gallery = Prisma.GalleryModel
+/**
+ * Model About
+ * 
+ */
+export type About = Prisma.AboutModel

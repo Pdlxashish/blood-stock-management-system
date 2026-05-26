@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, User, Mail, Lock, Phone, AlertCircle } from "lucide-react";
+import { Heart, User, Mail, Lock, Phone, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
 import PublicFooter from "@/components/PublicFooter";
@@ -23,6 +23,7 @@ export default function BecomeDonorPage() {
   const [error, setError] = useState("");
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [existingAccount, setExistingAccount] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Check if account exists when phone/email changes
   const checkExistingAccount = async (phone: string, email: string) => {
@@ -36,6 +37,12 @@ export default function BecomeDonorPage() {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/account-claim/check?${params}`
       );
+      
+      if (!response.ok) {
+        console.error('Failed to check existing account:', response.statusText);
+        return;
+      }
+      
       const data = await response.json();
 
       if (data.data.exists) {
@@ -47,6 +54,9 @@ export default function BecomeDonorPage() {
       }
     } catch (err) {
       console.error('Error checking account:', err);
+      // Silently fail - don't block registration if check fails
+      setExistingAccount(null);
+      setShowClaimPrompt(false);
     }
   };
 
@@ -87,9 +97,9 @@ export default function BecomeDonorPage() {
         throw new Error(data.message || 'Registration failed');
       }
 
-      // Registration successful - redirect to login
-      alert('Registration successful! Please login to complete your donor profile.');
-      router.push('/login');
+      // Registration successful - redirect to OTP verification
+      alert('Registration successful! Please check your email for OTP verification.');
+      router.push(`/verify-otp?email=${encodeURIComponent(form.email)}`);
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -125,6 +135,13 @@ export default function BecomeDonorPage() {
                   2
                 </div>
                 <span className="text-sm font-medium text-gray-500">Medical Info</span>
+              </div>
+              <div className="w-16 h-1 bg-gray-300"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-semibold">
+                  3
+                </div>
+                <span className="text-sm font-medium text-gray-500">Verification</span>
               </div>
             </div>
           </div>
@@ -214,15 +231,27 @@ export default function BecomeDonorPage() {
                       <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <Input
                         id="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={form.password}
                         onChange={(e) => setForm({ ...form, password: e.target.value })}
                         placeholder="••••••••"
-                        className="pl-10 h-11"
+                        className="pl-10 pr-10 h-11"
                         required
                         minLength={6}
                         disabled={loading}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        disabled={loading}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
                     </div>
                     <p className="text-xs text-gray-500">Minimum 6 characters</p>
                   </div>

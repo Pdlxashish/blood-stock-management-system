@@ -1,120 +1,178 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Target, Users, Award } from "lucide-react";
+import { Heart, Target, Users, Award, Loader2 } from "lucide-react";
 import PublicNav from "@/components/PublicNav";
 import PublicFooter from "@/components/PublicFooter";
+import axiosInstance from '@/lib/axiosInstance';
+
+interface AboutContent {
+  id: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  missionTitle: string;
+  missionContent: string;
+  visionTitle: string;
+  visionContent: string;
+  values: string;
+  storyTitle: string;
+  storyContent: string;
+  stats: string;
+  contactAddress: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactEmergency: string;
+  whatWeDo: string;
+}
+
+interface ValueItem {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface StatItem {
+  label: string;
+  value: string;
+}
 
 export default function AboutPage() {
+  const [content, setContent] = useState<AboutContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      const response = await axiosInstance.get('/api/about');
+      setContent(response.data.data);
+    } catch (error) {
+      console.error('Error fetching about content:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const iconMap: any = {
+    Heart,
+    Target,
+    Users,
+    Award,
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <PublicNav />
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <PublicFooter />
+      </div>
+    );
+  }
+
+  if (!content) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <PublicNav />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Failed to load content</p>
+        </main>
+        <PublicFooter />
+      </div>
+    );
+  }
+
+  const values: ValueItem[] = JSON.parse(content.values);
+  const stats: StatItem[] = JSON.parse(content.stats);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <PublicNav />
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in">
-      {/* Hero Section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">About VitalFlow</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          We're on a mission to make blood donation accessible, efficient, and impactful for everyone.
-        </p>
-      </div>
-
-      {/* Mission & Vision */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-6">
-            <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
-              <Target className="h-6 w-6 text-red-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Our Mission</h2>
-            <p className="text-gray-600">
-              To create a seamless bridge between blood donors and those in need, ensuring that no life is lost due to blood shortage. We leverage technology to make blood donation more accessible and efficient.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-6">
-            <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
-              <Heart className="h-6 w-6 text-red-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Our Vision</h2>
-            <p className="text-gray-600">
-              A world where every person has access to safe blood when they need it. We envision a community of engaged donors who understand the life-saving impact of their contribution.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Values */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Values</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              icon: Users,
-              title: "Community First",
-              desc: "We believe in the power of community and collective action to save lives.",
-            },
-            {
-              icon: Award,
-              title: "Excellence",
-              desc: "We maintain the highest standards in blood collection, storage, and distribution.",
-            },
-            {
-              icon: Heart,
-              title: "Compassion",
-              desc: "Every interaction is guided by empathy and understanding of the critical nature of our work.",
-            },
-          ].map((value) => (
-            <Card key={value.title} className="border border-gray-200 shadow-sm">
-              <CardContent className="p-6 text-center">
-                <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="h-6 w-6 text-red-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{value.title}</h3>
-                <p className="text-sm text-gray-600">{value.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Story */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardContent className="p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Story</h2>
-          <div className="space-y-4 text-gray-600">
-            <p>
-              VitalFlow was founded in 2024 with a simple yet powerful idea: use technology to save lives through better blood donation management. Our founders witnessed firsthand the challenges faced by blood banks and donors in coordinating donations.
-            </p>
-            <p>
-              What started as a small initiative has grown into a comprehensive platform serving thousands of donors and healthcare facilities. We've streamlined the donation process, making it easier for people to donate and for hospitals to access the blood they need.
-            </p>
-            <p>
-              Today, VitalFlow continues to innovate, introducing features like real-time blood stock tracking, automated donor notifications, and digital certificates. Our commitment remains unchanged: to ensure that every drop of blood donated reaches someone who needs it.
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{content.heroTitle}</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {content.heroSubtitle}
             </p>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Stats */}
-      <div className="mt-12 bg-red-50 rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Impact</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { label: "Active Donors", value: "500+" },
-            { label: "Lives Saved", value: "1,200+" },
-            { label: "Partner Hospitals", value: "25+" },
-            { label: "Blood Units Collected", value: "3,000+" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-3xl font-bold text-red-600">{stat.value}</p>
-              <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+          {/* Mission & Vision */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <Card className="border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-3">{content.missionTitle}</h2>
+                <p className="text-gray-600">
+                  {content.missionContent}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
+                  <Heart className="h-6 w-6 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-3">{content.visionTitle}</h2>
+                <p className="text-gray-600">
+                  {content.visionContent}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Values */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Values</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {values.map((value, index) => {
+                const IconComponent = iconMap[value.icon] || Heart;
+                return (
+                  <Card key={index} className="border border-gray-200 shadow-sm">
+                    <CardContent className="p-6 text-center">
+                      <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center mx-auto mb-4">
+                        <IconComponent className="h-6 w-6 text-red-600" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-2">{value.title}</h3>
+                      <p className="text-sm text-gray-600">{value.description}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+
+          {/* Story */}
+          <Card className="border border-gray-200 shadow-sm mb-12">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{content.storyTitle}</h2>
+              <div className="space-y-4 text-gray-600 whitespace-pre-wrap">
+                {content.storyContent}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats */}
+          <div className="bg-red-50 rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Impact</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <p className="text-3xl font-bold text-red-600">{stat.value}</p>
+                  <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
       <PublicFooter />

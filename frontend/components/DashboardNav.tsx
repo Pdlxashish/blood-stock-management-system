@@ -47,7 +47,7 @@ import {
   Package,
   Activity,
 } from 'lucide-react';
-import { clearAuth } from '@/lib/auth';
+import { logout } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
 
 // ── Nav config ────────────────────────────────────────────────────────────────
@@ -75,17 +75,17 @@ export const DashboardNav = () => {
   const { state } = useSidebar();
 
   const handleLogout = () => {
-    clearAuth();
-    router.push('/');
+    logout();
   };
 
   const handleSwitchToPublicDashboard = () => {
-    router.push('/dashboard/public');
+    router.push('/admin-public');
   };
 
   // Prevent hydration mismatch by not rendering user-dependent content until mounted
   const displayName = isMounted && user ? user.name : 'Admin';
   const displayEmail = isMounted && user ? user.email : 'Admin Panel';
+  const displayRole = isMounted && user ? (user.role === 'ADMIN' ? 'Administrator' : user.email) : 'Administrator';
   const initials = isMounted && user ? user.name.charAt(0).toUpperCase() : 'A';
 
   return (
@@ -220,7 +220,7 @@ export const DashboardNav = () => {
                       </div>
                       <div className="flex flex-col gap-0.5 leading-none text-left min-w-0">
                         <span className="font-medium text-sm truncate">{displayName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{displayEmail}</span>
+                        <span className="text-xs text-muted-foreground truncate">{displayRole}</span>
                       </div>
                       <ChevronDown className="ml-auto size-4 shrink-0" />
                     </SidebarMenuButton>
@@ -252,7 +252,7 @@ export const DashboardNav = () => {
                       </div>
                       <div className="flex flex-col gap-0.5 leading-none text-left min-w-0">
                         <span className="font-medium text-sm truncate">{displayName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{displayEmail}</span>
+                        <span className="text-xs text-muted-foreground truncate">Administrator</span>
                       </div>
                       <ChevronDown className="ml-auto size-4 shrink-0" />
                     </SidebarMenuButton>

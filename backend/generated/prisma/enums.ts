@@ -114,3 +114,12 @@ export const CertificateType = {
 } as const
 
 export type CertificateType = (typeof CertificateType)[keyof typeof CertificateType]
+
+
+export const DonorVerificationStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type DonorVerificationStatus = (typeof DonorVerificationStatus)[keyof typeof DonorVerificationStatus]

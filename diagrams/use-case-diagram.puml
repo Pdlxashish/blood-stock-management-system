@@ -1,0 +1,268 @@
+@startuml Blood Stock Management System - Use Case Diagram
+
+' Styling
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor LightBlue
+    BorderColor DarkBlue
+    ArrowColor DarkBlue
+}
+
+title Blood Stock Management System - Use Case Diagram
+
+' Actors
+actor "Donor" as donor
+actor "Staff" as staff
+actor "Admin" as admin
+actor "Guest" as guest
+
+' System boundary
+rectangle "Blood Stock Management System" {
+    
+    ' Authentication & Account Management
+    package "Authentication & Account" {
+        usecase "Register Account" as UC1
+        usecase "Login" as UC2
+        usecase "Logout" as UC3
+        usecase "Reset Password" as UC4
+        usecase "Verify Email" as UC5
+        usecase "Claim Account" as UC6
+        usecase "Update Profile" as UC7
+    }
+    
+    ' Donor Management
+    package "Donor Management" {
+        usecase "Register as Donor" as UC8
+        usecase "Update Donor Profile" as UC9
+        usecase "View Donor List" as UC10
+        usecase "Search Donors" as UC11
+        usecase "View Donor Details" as UC12
+        usecase "Check Donor Eligibility" as UC13
+        usecase "Find Nearby Donors" as UC14
+        usecase "Manage Donor Status" as UC15
+    }
+    
+    ' Donation Management
+    package "Donation Management" {
+        usecase "Record Donation" as UC16
+        usecase "View Donation History" as UC17
+        usecase "Update Donation Status" as UC18
+        usecase "View My Donations" as UC19
+        usecase "Generate Donation Report" as UC20
+        usecase "Link Donation to Event" as UC21
+    }
+    
+    ' Blood Inventory Management
+    package "Blood Inventory" {
+        usecase "Add Blood Pack" as UC22
+        usecase "Update Blood Pack" as UC23
+        usecase "View Blood Stock" as UC24
+        usecase "Search Blood Inventory" as UC25
+        usecase "Monitor Expiry Dates" as UC26
+        usecase "View Stock Summary" as UC27
+        usecase "Update Pack Status" as UC28
+        usecase "Generate Inventory Report" as UC29
+    }
+    
+    ' Blood Issuance
+    package "Blood Issuance" {
+        usecase "Issue Blood" as UC30
+        usecase "View Issuance History" as UC31
+        usecase "Update Issuance Status" as UC32
+        usecase "Search Available Blood" as UC33
+        usecase "Generate Issuance Receipt" as UC34
+        usecase "Track Blood Distribution" as UC35
+    }
+    
+    ' Event Management
+    package "Event Management" {
+        usecase "Create Event" as UC36
+        usecase "Update Event" as UC37
+        usecase "Delete Event" as UC38
+        usecase "View Events" as UC39
+        usecase "Register for Event" as UC40
+        usecase "Register as Volunteer" as UC41
+        usecase "Manage Participants" as UC42
+        usecase "Manage Volunteers" as UC43
+        usecase "View Event Details" as UC44
+    }
+    
+    ' Certificate Management
+    package "Certificate Management" {
+        usecase "Generate Certificate" as UC45
+        usecase "View My Certificates" as UC46
+        usecase "Download Certificate" as UC47
+        usecase "Verify Certificate" as UC48
+        usecase "Manage Certificates" as UC49
+    }
+    
+    ' User Management (Admin)
+    package "User Management" {
+        usecase "View All Users" as UC50
+        usecase "Update User Role" as UC51
+        usecase "Verify User Account" as UC52
+        usecase "Deactivate User" as UC53
+        usecase "Delete User" as UC54
+    }
+    
+    ' Dashboard & Analytics
+    package "Dashboard & Analytics" {
+        usecase "View Dashboard" as UC55
+        usecase "View Blood Stock Analytics" as UC56
+        usecase "View Donation Statistics" as UC57
+        usecase "View System Reports" as UC58
+        usecase "Export Data" as UC59
+    }
+    
+    ' Geolocation Features
+    package "Geolocation" {
+        usecase "View Donor Map" as UC60
+        usecase "Search by Location" as UC61
+        usecase "Update Location" as UC62
+    }
+}
+
+' Guest relationships
+guest --> UC1 : registers
+guest --> UC2 : logs in
+guest --> UC39 : views
+
+' Donor relationships
+donor --> UC2 : logs in
+donor --> UC3 : logs out
+donor --> UC4 : resets
+donor --> UC6 : claims
+donor --> UC7 : updates
+donor --> UC8 : registers as
+donor --> UC9 : updates
+donor --> UC19 : views
+donor --> UC39 : views
+donor --> UC40 : registers for
+donor --> UC41 : volunteers
+donor --> UC44 : views
+donor --> UC46 : views
+donor --> UC47 : downloads
+donor --> UC62 : updates
+
+' Staff relationships
+staff --> UC2 : logs in
+staff --> UC3 : logs out
+staff --> UC7 : updates
+staff --> UC10 : views
+staff --> UC11 : searches
+staff --> UC12 : views
+staff --> UC13 : checks
+staff --> UC14 : finds
+staff --> UC16 : records
+staff --> UC17 : views
+staff --> UC18 : updates
+staff --> UC21 : links
+staff --> UC22 : adds
+staff --> UC23 : updates
+staff --> UC24 : views
+staff --> UC25 : searches
+staff --> UC26 : monitors
+staff --> UC27 : views
+staff --> UC28 : updates
+staff --> UC30 : issues
+staff --> UC31 : views
+staff --> UC32 : updates
+staff --> UC33 : searches
+staff --> UC34 : generates
+staff --> UC35 : tracks
+staff --> UC36 : creates
+staff --> UC37 : updates
+staff --> UC39 : views
+staff --> UC42 : manages
+staff --> UC43 : manages
+staff --> UC44 : views
+staff --> UC45 : generates
+staff --> UC49 : manages
+staff --> UC55 : views
+staff --> UC60 : views
+staff --> UC61 : searches
+
+' Admin relationships (inherits all staff capabilities)
+admin --> UC2 : logs in
+admin --> UC3 : logs out
+admin --> UC7 : updates
+admin --> UC10 : views
+admin --> UC11 : searches
+admin --> UC12 : views
+admin --> UC13 : checks
+admin --> UC14 : finds
+admin --> UC15 : manages
+admin --> UC16 : records
+admin --> UC17 : views
+admin --> UC18 : updates
+admin --> UC20 : generates
+admin --> UC21 : links
+admin --> UC22 : adds
+admin --> UC23 : updates
+admin --> UC24 : views
+admin --> UC25 : searches
+admin --> UC26 : monitors
+admin --> UC27 : views
+admin --> UC28 : updates
+admin --> UC29 : generates
+admin --> UC30 : issues
+admin --> UC31 : views
+admin --> UC32 : updates
+admin --> UC33 : searches
+admin --> UC34 : generates
+admin --> UC35 : tracks
+admin --> UC36 : creates
+admin --> UC37 : updates
+admin --> UC38 : deletes
+admin --> UC39 : views
+admin --> UC42 : manages
+admin --> UC43 : manages
+admin --> UC44 : views
+admin --> UC45 : generates
+admin --> UC48 : verifies
+admin --> UC49 : manages
+admin --> UC50 : views
+admin --> UC51 : updates
+admin --> UC52 : verifies
+admin --> UC53 : deactivates
+admin --> UC54 : deletes
+admin --> UC55 : views
+admin --> UC56 : views
+admin --> UC57 : views
+admin --> UC58 : views
+admin --> UC59 : exports
+admin --> UC60 : views
+admin --> UC61 : searches
+
+' Include relationships
+UC8 ..> UC1 : <<include>>
+UC16 ..> UC22 : <<include>>
+UC30 ..> UC28 : <<include>>
+UC45 ..> UC17 : <<include>>
+
+' Extend relationships
+UC6 ..> UC2 : <<extend>>
+UC5 ..> UC1 : <<extend>>
+UC14 ..> UC11 : <<extend>>
+UC21 ..> UC16 : <<extend>>
+
+note right of admin
+  Admin has all Staff 
+  permissions plus 
+  additional administrative 
+  capabilities
+end note
+
+note right of donor
+  Donors can view their
+  own donation history
+  and certificates
+end note
+
+note bottom of "Blood Stock Management System"
+  System manages complete blood bank operations
+  from donor registration to blood distribution
+end note
+
+@enduml

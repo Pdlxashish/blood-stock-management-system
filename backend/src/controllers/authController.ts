@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../lib/prisma';
+import { generateOTP, sendOTPEmail } from '../utils/emailService';
 
 const TOKEN_EXPIRY = '30d';
 
@@ -84,6 +85,13 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate OTP for email verification
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    console.log('🔐 [REGISTER] Generated OTP for', email, ':', otp);
+    console.log('⏰ [REGISTER] OTP expires at:', otpExpiry.toLocaleString());
+
     const user = await prisma.user.create({
       data: {
         name: name.trim(),
@@ -92,6 +100,9 @@ export const registerUser = async (req: Request, res: Response) => {
         phone: phone.trim(),
         role: role || 'DONOR',
         isVerified: false, // User needs to complete donor profile
+        emailVerified: false, // Email not verified yet
+        otp,
+        otpExpiry,
       },
       select: {
         id: true,
@@ -100,14 +111,30 @@ export const registerUser = async (req: Request, res: Response) => {
         phone: true,
         role: true,
         isVerified: true,
+        emailVerified: true,
         createdAt: true,
       },
     });
 
+    // Send OTP email
+    try {
+      console.log('📧 [REGISTER] Attempting to send OTP email to:', user.email);
+      console.log('📧 [REGISTER] OTP Code:', otp);
+      await sendOTPEmail(user.email, otp, user.name);
+      console.log('✅ [REGISTER] OTP email sent successfully to:', user.email);
+    } catch (emailError) {
+      console.error('❌ [REGISTER] Failed to send OTP email:', emailError);
+      console.error('❌ [REGISTER] OTP was:', otp, '(email failed but user can still use this code)');
+      // Don't fail registration if email fails
+    }
+
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please login to complete your profile.',
-      data: { user },
+      message: 'Registration successful! Please check your email for OTP verification.',
+      data: { 
+        user,
+        requiresEmailVerification: true,
+      },
     });
   } catch (err) {
     console.error('REGISTER ERROR:', err);
@@ -138,6 +165,16 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
+      });
+    }
+
+    // Check if email is verified (only for DONOR role)
+    if (user.role === 'DONOR' && !user.emailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email first. Check your inbox for the OTP.',
+        requiresEmailVerification: true,
+        email: user.email,
       });
     }
 
@@ -245,5 +282,87 @@ export const updateUserProfile = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('UPDATE ERROR:', err);
     res.status(500).json({ success: false });
+  }
+};
+
+// ================= ADMIN LOGIN =================
+export const adminLogin = async (req: Request, res: Response) => {
+  try {
+    const { id, password } = req.body;
+
+    console.log('[ADMIN LOGIN] Attempt with ID:', id);
+
+    // Hardcoded admin credentials
+    const ADMIN_ID = 'mukunday@gmail.com';
+    const ADMIN_PASSWORD = 'muku';
+
+    if (!id || !password) {
+      console.log('[ADMIN LOGIN] ❌ Missing credentials');
+      return res.status(400).json({
+        success: false,
+        message: 'ID and password are required',
+      });
+    }
+
+    // Check credentials
+    if (id !== ADMIN_ID || password !== ADMIN_PASSWORD) {
+      console.log('[ADMIN LOGIN] ❌ Invalid credentials');
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid admin credentials',
+      });
+    }
+
+    console.log('[ADMIN LOGIN] ✅ Credentials valid, checking database...');
+
+    // Find or create admin user in database
+    let adminUser = await prisma.user.findUnique({
+      where: { email: ADMIN_ID },
+    });
+
+    // If admin doesn't exist, create one
+    if (!adminUser) {
+      console.log('[ADMIN LOGIN] Admin user not found, creating...');
+      const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+      adminUser = await prisma.user.create({
+        data: {
+          email: ADMIN_ID,
+          name: 'Administrator',
+          phone: '0000000000',
+          password: hashedPassword,
+          role: 'ADMIN',
+          isVerified: true,
+        },
+      });
+      console.log('[ADMIN LOGIN] ✅ Admin user created:', adminUser.id);
+    } else {
+      console.log('[ADMIN LOGIN] ✅ Admin user found:', adminUser.id);
+    }
+
+    // Generate token with actual user ID from database
+    const adminToken = generateToken(adminUser.id);
+    console.log('[ADMIN LOGIN] ✅ Token generated for user ID:', adminUser.id);
+
+    res.json({
+      success: true,
+      message: 'Admin login successful',
+      data: {
+        admin: {
+          id: adminUser.id,
+          email: adminUser.email,
+          role: adminUser.role,
+          name: adminUser.name,
+          phone: adminUser.phone,
+          isVerified: adminUser.isVerified,
+        },
+        token: adminToken,
+      },
+    });
+  } catch (err) {
+    console.error('[ADMIN LOGIN] ❌ ERROR:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
   }
 };

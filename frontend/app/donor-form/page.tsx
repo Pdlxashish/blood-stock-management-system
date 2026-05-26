@@ -194,18 +194,11 @@ export default function DonorFormPage() {
       }
 
       // Update user data in localStorage
-      const updatedUser = { ...user, isVerified: true };
+      const updatedUser = { ...user, isVerified: false }; // Keep as false until admin verifies
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
-      // Success! Redirect based on role
-      alert('Donor profile completed successfully! Welcome to the blood donation community.');
-      
-      // Donors go to home, admins go to dashboard
-      if (user.role === 'DONOR') {
-        window.location.href = '/home';
-      } else {
-        window.location.href = '/dashboard';
-      }
+      // Success! Redirect to verification request page
+      router.push('/verification-request');
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -247,6 +240,13 @@ export default function DonorFormPage() {
                 2
               </div>
               <span className="text-sm font-medium text-red-600">Medical Info</span>
+            </div>
+            <div className="w-16 h-1 bg-gray-300"></div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-semibold">
+                3
+              </div>
+              <span className="text-sm font-medium text-gray-500">Verification</span>
             </div>
           </div>
         </div>

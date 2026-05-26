@@ -15,6 +15,9 @@ import bloodIssueRoutes from './routes/bloodIssueRoutes';
 import eventRoutes from './routes/eventRoutes';
 import certificateRoutes from './routes/certificateRoutes';
 import accountClaimRoutes from './routes/accountClaimRoutes';
+import galleryRoutes from './routes/galleryRoutes';
+import aboutRoutes from './routes/aboutRoutes';
+import otpRoutes from './routes/otpRoutes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -24,7 +27,7 @@ const PORT = process.env.PORT || 3001;
 //
 app.use(cors({
   origin: '*', // allow all
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -54,6 +57,12 @@ app.use('/api/blood-issues', bloodIssueRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/account-claim', accountClaimRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/about', aboutRoutes);
+app.use('/api/otp', otpRoutes);
+
+// Serve static files for uploaded images
+app.use('/uploads', express.static('uploads'));
 
 //
 // ✅ 5. 404 Handler
