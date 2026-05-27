@@ -28,6 +28,11 @@ export default function HomePage() {
                   Join VitalFlow — a modern blood donation management platform connecting donors with those in need. Your donation matters.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-8">
+                  <Link href="/need-a-blood">
+                    <Button size="lg" className="bg-white text-red-800 hover:bg-gray-100 font-semibold">
+                      Need a Blood? <Droplets className="h-4 w-4 ml-1" />
+                    </Button>
+                  </Link>
                   <Link href="/become-donor">
                     <Button size="lg" variant="secondary" className="font-semibold">
                       Become a Donor <ArrowRight className="h-4 w-4 ml-1" />

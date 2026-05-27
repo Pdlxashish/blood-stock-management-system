@@ -51,16 +51,24 @@ axiosInstance.interceptors.request.use(
     // Get token from storage
     const token = getToken();
     
-    // Debug logging
-    console.log('[axiosInstance] Request to:', config.url);
-    console.log('[axiosInstance] Token found:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
-    console.log('[axiosInstance] Direct token:', localStorage.getItem("token") ? 'EXISTS' : 'MISSING');
-    console.log('[axiosInstance] Auth storage:', localStorage.getItem("auth-storage") ? 'EXISTS' : 'MISSING');
+    // Check if this is a public route that doesn't require authentication
+    const isPublicRoute = config.url?.includes('/admin-public') || 
+                          config.url?.includes('/public') ||
+                          config.url?.includes('/auth/') ||
+                          config.url?.includes('/otp/');
+    
+    // Debug logging (reduced for public routes)
+    if (!isPublicRoute) {
+      console.log('[axiosInstance] Request to:', config.url);
+      console.log('[axiosInstance] Token found:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+    }
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('[axiosInstance] Authorization header set');
-    } else {
+      if (!isPublicRoute) {
+        console.log('[axiosInstance] Authorization header set');
+      }
+    } else if (!isPublicRoute) {
       console.warn('[axiosInstance] NO TOKEN - Request will be unauthorized');
     }
     
@@ -88,12 +96,18 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const status = error.response.status;
+      const isPublicRoute = error.config?.url?.includes('/admin-public') || 
+                            error.config?.url?.includes('/public') ||
+                            error.config?.url?.includes('/auth/') ||
+                            error.config?.url?.includes('/otp/');
       
       switch (status) {
         case 401:
           // Unauthorized - token expired or invalid
-          // Let component handle this (e.g., redirect to login)
-          console.error("Unauthorized access - please login again");
+          // Don't log for public routes as they may not require auth
+          if (!isPublicRoute) {
+            console.error("Unauthorized access - please login again");
+          }
           break;
           
         case 403:

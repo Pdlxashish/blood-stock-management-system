@@ -8,6 +8,10 @@ export interface EventFormState {
   description: string;
   status: EventStatus;
   capacity?: number;
+  latitude?: number;
+  longitude?: number;
+  banner?: File | null;
+  poster?: File | null;
 }
 
 export interface StatusConfigItem {

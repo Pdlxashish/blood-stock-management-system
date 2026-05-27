@@ -5,12 +5,38 @@ import { prisma } from '../../lib/prisma';
 export const getAboutContent = async (req: Request, res: Response) => {
   try {
     // Get the first (and should be only) About record
-    let about = await prisma.about.findFirst();
+    let about = await prisma.about.findFirst({
+      select: {
+        id: true,
+        heroTitle: true,
+        heroSubtitle: true,
+        missionTitle: true,
+        missionContent: true,
+        visionTitle: true,
+        visionContent: true,
+        values: true,
+        storyTitle: true,
+        storyContent: true,
+        stats: true,
+        contactAddress: true,
+        contactPhone: true,
+        contactEmail: true,
+        contactEmergency: true,
+        whatsappNumber: true,
+        whatsappEnabled: true,
+        whatWeDo: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-    // If no record exists, create one with default values
+    // If no record exists, create one with default values from environment
     if (!about) {
       about = await prisma.about.create({
-        data: {},
+        data: {
+          whatsappNumber: process.env.WHATSAPP_NUMBER || '+977-9800000000',
+          whatsappEnabled: process.env.WHATSAPP_ENABLED === 'true',
+        },
       });
     }
 
@@ -47,6 +73,8 @@ export const updateAboutContent = async (req: Request, res: Response) => {
       contactEmail,
       contactEmergency,
       whatWeDo,
+      whatsappNumber,
+      whatsappEnabled,
     } = req.body;
 
     // Get the first About record or create if doesn't exist
@@ -73,6 +101,8 @@ export const updateAboutContent = async (req: Request, res: Response) => {
     if (contactPhone !== undefined) updateData.contactPhone = contactPhone;
     if (contactEmail !== undefined) updateData.contactEmail = contactEmail;
     if (contactEmergency !== undefined) updateData.contactEmergency = contactEmergency;
+    if (whatsappNumber !== undefined) updateData.whatsappNumber = whatsappNumber;
+    if (whatsappEnabled !== undefined) updateData.whatsappEnabled = whatsappEnabled;
     if (whatWeDo !== undefined) {
       updateData.whatWeDo = typeof whatWeDo === 'string' ? whatWeDo : JSON.stringify(whatWeDo);
     }
@@ -100,6 +130,59 @@ export const updateAboutContent = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Failed to update about content',
+      error: error.message,
+    });
+  }
+};
+
+// Update WhatsApp settings only (Admin only)
+export const updateWhatsAppSettings = async (req: Request, res: Response) => {
+  try {
+    const { whatsappNumber, whatsappEnabled } = req.body;
+
+    if (whatsappNumber === undefined && whatsappEnabled === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide whatsappNumber or whatsappEnabled',
+      });
+    }
+
+    // Get the first About record or create if doesn't exist
+    let about = await prisma.about.findFirst();
+
+    const updateData: any = {};
+    if (whatsappNumber !== undefined) updateData.whatsappNumber = whatsappNumber;
+    if (whatsappEnabled !== undefined) updateData.whatsappEnabled = whatsappEnabled;
+
+    if (about) {
+      // Update existing record
+      about = await prisma.about.update({
+        where: { id: about.id },
+        data: updateData,
+      });
+    } else {
+      // Create new record with WhatsApp settings
+      about = await prisma.about.create({
+        data: {
+          whatsappNumber: whatsappNumber || process.env.WHATSAPP_NUMBER || '+977-9800000000',
+          whatsappEnabled: whatsappEnabled !== undefined ? whatsappEnabled : true,
+        },
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'WhatsApp settings updated successfully',
+      data: {
+        whatsappNumber: about.whatsappNumber,
+        whatsappEnabled: about.whatsappEnabled,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error updating WhatsApp settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update WhatsApp settings',
       error: error.message,
     });
   }

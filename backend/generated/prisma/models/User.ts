@@ -35,6 +35,7 @@ export type UserMinAggregateOutputType = {
   emailVerified: boolean | null
   otp: string | null
   otpExpiry: Date | null
+  profilePicture: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +51,7 @@ export type UserMaxAggregateOutputType = {
   emailVerified: boolean | null
   otp: string | null
   otpExpiry: Date | null
+  profilePicture: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,6 +67,7 @@ export type UserCountAggregateOutputType = {
   emailVerified: number
   otp: number
   otpExpiry: number
+  profilePicture: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -82,6 +85,7 @@ export type UserMinAggregateInputType = {
   emailVerified?: true
   otp?: true
   otpExpiry?: true
+  profilePicture?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -97,6 +101,7 @@ export type UserMaxAggregateInputType = {
   emailVerified?: true
   otp?: true
   otpExpiry?: true
+  profilePicture?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +117,7 @@ export type UserCountAggregateInputType = {
   emailVerified?: true
   otp?: true
   otpExpiry?: true
+  profilePicture?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -200,6 +206,7 @@ export type UserGroupByOutputType = {
   emailVerified: boolean
   otp: string | null
   otpExpiry: Date | null
+  profilePicture: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -236,6 +243,7 @@ export type UserWhereInput = {
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   otp?: Prisma.StringNullableFilter<"User"> | string | null
   otpExpiry?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
@@ -244,6 +252,7 @@ export type UserWhereInput = {
   eventParticipations?: Prisma.EventParticipantListRelationFilter
   eventVolunteers?: Prisma.EventVolunteerListRelationFilter
   bloodIssues?: Prisma.BloodIssueListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -257,6 +266,7 @@ export type UserOrderByWithRelationInput = {
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrderInput | Prisma.SortOrder
   otpExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   donor?: Prisma.DonorOrderByWithRelationInput
@@ -265,6 +275,7 @@ export type UserOrderByWithRelationInput = {
   eventParticipations?: Prisma.EventParticipantOrderByRelationAggregateInput
   eventVolunteers?: Prisma.EventVolunteerOrderByRelationAggregateInput
   bloodIssues?: Prisma.BloodIssueOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -281,6 +292,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   otp?: Prisma.StringNullableFilter<"User"> | string | null
   otpExpiry?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   donor?: Prisma.XOR<Prisma.DonorNullableScalarRelationFilter, Prisma.DonorWhereInput> | null
@@ -289,6 +301,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   eventParticipations?: Prisma.EventParticipantListRelationFilter
   eventVolunteers?: Prisma.EventVolunteerListRelationFilter
   bloodIssues?: Prisma.BloodIssueListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -302,6 +315,7 @@ export type UserOrderByWithAggregationInput = {
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrderInput | Prisma.SortOrder
   otpExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -323,6 +337,7 @@ export type UserScalarWhereWithAggregatesInput = {
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   otp?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   otpExpiry?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  profilePicture?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -338,6 +353,7 @@ export type UserCreateInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -346,6 +362,7 @@ export type UserCreateInput = {
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -359,6 +376,7 @@ export type UserUncheckedCreateInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -367,6 +385,7 @@ export type UserUncheckedCreateInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -380,6 +399,7 @@ export type UserUpdateInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -388,6 +408,7 @@ export type UserUpdateInput = {
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -401,6 +422,7 @@ export type UserUncheckedUpdateInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
@@ -409,6 +431,7 @@ export type UserUncheckedUpdateInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -422,6 +445,7 @@ export type UserCreateManyInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +461,7 @@ export type UserUpdateManyMutationInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -452,6 +477,7 @@ export type UserUncheckedUpdateManyInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -467,6 +493,7 @@ export type UserCountOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -482,6 +509,7 @@ export type UserMaxOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -497,6 +525,7 @@ export type UserMinOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
+  profilePicture?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -623,6 +652,20 @@ export type UserUpdateOneRequiredWithoutCertificatesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCertificatesInput, Prisma.UserUpdateWithoutCertificatesInput>, Prisma.UserUncheckedUpdateWithoutCertificatesInput>
 }
 
+export type UserCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
 export type UserCreateWithoutDonorInput = {
   id?: string
   email: string
@@ -634,6 +677,7 @@ export type UserCreateWithoutDonorInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donations?: Prisma.DonationCreateNestedManyWithoutUserInput
@@ -641,6 +685,7 @@ export type UserCreateWithoutDonorInput = {
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDonorInput = {
@@ -654,6 +699,7 @@ export type UserUncheckedCreateWithoutDonorInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donations?: Prisma.DonationUncheckedCreateNestedManyWithoutUserInput
@@ -661,6 +707,7 @@ export type UserUncheckedCreateWithoutDonorInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDonorInput = {
@@ -690,6 +737,7 @@ export type UserUpdateWithoutDonorInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donations?: Prisma.DonationUpdateManyWithoutUserNestedInput
@@ -697,6 +745,7 @@ export type UserUpdateWithoutDonorInput = {
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDonorInput = {
@@ -710,6 +759,7 @@ export type UserUncheckedUpdateWithoutDonorInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donations?: Prisma.DonationUncheckedUpdateManyWithoutUserNestedInput
@@ -717,6 +767,7 @@ export type UserUncheckedUpdateWithoutDonorInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDonationsInput = {
@@ -730,6 +781,7 @@ export type UserCreateWithoutDonationsInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -737,6 +789,7 @@ export type UserCreateWithoutDonationsInput = {
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDonationsInput = {
@@ -750,6 +803,7 @@ export type UserUncheckedCreateWithoutDonationsInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -757,6 +811,7 @@ export type UserUncheckedCreateWithoutDonationsInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDonationsInput = {
@@ -786,6 +841,7 @@ export type UserUpdateWithoutDonationsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -793,6 +849,7 @@ export type UserUpdateWithoutDonationsInput = {
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDonationsInput = {
@@ -806,6 +863,7 @@ export type UserUncheckedUpdateWithoutDonationsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
@@ -813,6 +871,7 @@ export type UserUncheckedUpdateWithoutDonationsInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBloodIssuesInput = {
@@ -826,6 +885,7 @@ export type UserCreateWithoutBloodIssuesInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -833,6 +893,7 @@ export type UserCreateWithoutBloodIssuesInput = {
   certificates?: Prisma.CertificateCreateNestedManyWithoutUserInput
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBloodIssuesInput = {
@@ -846,6 +907,7 @@ export type UserUncheckedCreateWithoutBloodIssuesInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -853,6 +915,7 @@ export type UserUncheckedCreateWithoutBloodIssuesInput = {
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutUserInput
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBloodIssuesInput = {
@@ -882,6 +945,7 @@ export type UserUpdateWithoutBloodIssuesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -889,6 +953,7 @@ export type UserUpdateWithoutBloodIssuesInput = {
   certificates?: Prisma.CertificateUpdateManyWithoutUserNestedInput
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBloodIssuesInput = {
@@ -902,6 +967,7 @@ export type UserUncheckedUpdateWithoutBloodIssuesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
@@ -909,6 +975,7 @@ export type UserUncheckedUpdateWithoutBloodIssuesInput = {
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutUserNestedInput
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventParticipationsInput = {
@@ -922,6 +989,7 @@ export type UserCreateWithoutEventParticipationsInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -929,6 +997,7 @@ export type UserCreateWithoutEventParticipationsInput = {
   certificates?: Prisma.CertificateCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventParticipationsInput = {
@@ -942,6 +1011,7 @@ export type UserUncheckedCreateWithoutEventParticipationsInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -949,6 +1019,7 @@ export type UserUncheckedCreateWithoutEventParticipationsInput = {
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventParticipationsInput = {
@@ -978,6 +1049,7 @@ export type UserUpdateWithoutEventParticipationsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -985,6 +1057,7 @@ export type UserUpdateWithoutEventParticipationsInput = {
   certificates?: Prisma.CertificateUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventParticipationsInput = {
@@ -998,6 +1071,7 @@ export type UserUncheckedUpdateWithoutEventParticipationsInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
@@ -1005,6 +1079,7 @@ export type UserUncheckedUpdateWithoutEventParticipationsInput = {
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventVolunteersInput = {
@@ -1018,6 +1093,7 @@ export type UserCreateWithoutEventVolunteersInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -1025,6 +1101,7 @@ export type UserCreateWithoutEventVolunteersInput = {
   certificates?: Prisma.CertificateCreateNestedManyWithoutUserInput
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventVolunteersInput = {
@@ -1038,6 +1115,7 @@ export type UserUncheckedCreateWithoutEventVolunteersInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -1045,6 +1123,7 @@ export type UserUncheckedCreateWithoutEventVolunteersInput = {
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutUserInput
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventVolunteersInput = {
@@ -1074,6 +1153,7 @@ export type UserUpdateWithoutEventVolunteersInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -1081,6 +1161,7 @@ export type UserUpdateWithoutEventVolunteersInput = {
   certificates?: Prisma.CertificateUpdateManyWithoutUserNestedInput
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventVolunteersInput = {
@@ -1094,6 +1175,7 @@ export type UserUncheckedUpdateWithoutEventVolunteersInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
@@ -1101,6 +1183,7 @@ export type UserUncheckedUpdateWithoutEventVolunteersInput = {
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutUserNestedInput
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCertificatesInput = {
@@ -1114,6 +1197,7 @@ export type UserCreateWithoutCertificatesInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorCreateNestedOneWithoutUserInput
@@ -1121,6 +1205,7 @@ export type UserCreateWithoutCertificatesInput = {
   eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCertificatesInput = {
@@ -1134,6 +1219,7 @@ export type UserUncheckedCreateWithoutCertificatesInput = {
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
+  profilePicture?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
@@ -1141,6 +1227,7 @@ export type UserUncheckedCreateWithoutCertificatesInput = {
   eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
   bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCertificatesInput = {
@@ -1170,6 +1257,7 @@ export type UserUpdateWithoutCertificatesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
@@ -1177,6 +1265,7 @@ export type UserUpdateWithoutCertificatesInput = {
   eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCertificatesInput = {
@@ -1190,10 +1279,116 @@ export type UserUncheckedUpdateWithoutCertificatesInput = {
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
   donations?: Prisma.DonationUncheckedUpdateManyWithoutUserNestedInput
+  eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
+  eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
+  bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutNotificationsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  phone: string
+  role?: $Enums.Role
+  isVerified?: boolean
+  emailVerified?: boolean
+  otp?: string | null
+  otpExpiry?: Date | string | null
+  profilePicture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  donor?: Prisma.DonorCreateNestedOneWithoutUserInput
+  donations?: Prisma.DonationCreateNestedManyWithoutUserInput
+  certificates?: Prisma.CertificateCreateNestedManyWithoutUserInput
+  eventParticipations?: Prisma.EventParticipantCreateNestedManyWithoutUserInput
+  eventVolunteers?: Prisma.EventVolunteerCreateNestedManyWithoutUserInput
+  bloodIssues?: Prisma.BloodIssueCreateNestedManyWithoutIssuedBy_userInput
+}
+
+export type UserUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  phone: string
+  role?: $Enums.Role
+  isVerified?: boolean
+  emailVerified?: boolean
+  otp?: string | null
+  otpExpiry?: Date | string | null
+  profilePicture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  donor?: Prisma.DonorUncheckedCreateNestedOneWithoutUserInput
+  donations?: Prisma.DonationUncheckedCreateNestedManyWithoutUserInput
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutUserInput
+  eventParticipations?: Prisma.EventParticipantUncheckedCreateNestedManyWithoutUserInput
+  eventVolunteers?: Prisma.EventVolunteerUncheckedCreateNestedManyWithoutUserInput
+  bloodIssues?: Prisma.BloodIssueUncheckedCreateNestedManyWithoutIssuedBy_userInput
+}
+
+export type UserCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+}
+
+export type UserUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutNotificationsInput, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  donor?: Prisma.DonorUpdateOneWithoutUserNestedInput
+  donations?: Prisma.DonationUpdateManyWithoutUserNestedInput
+  certificates?: Prisma.CertificateUpdateManyWithoutUserNestedInput
+  eventParticipations?: Prisma.EventParticipantUpdateManyWithoutUserNestedInput
+  eventVolunteers?: Prisma.EventVolunteerUpdateManyWithoutUserNestedInput
+  bloodIssues?: Prisma.BloodIssueUpdateManyWithoutIssuedBy_userNestedInput
+}
+
+export type UserUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  donor?: Prisma.DonorUncheckedUpdateOneWithoutUserNestedInput
+  donations?: Prisma.DonationUncheckedUpdateManyWithoutUserNestedInput
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutUserNestedInput
   eventParticipations?: Prisma.EventParticipantUncheckedUpdateManyWithoutUserNestedInput
   eventVolunteers?: Prisma.EventVolunteerUncheckedUpdateManyWithoutUserNestedInput
   bloodIssues?: Prisma.BloodIssueUncheckedUpdateManyWithoutIssuedBy_userNestedInput
@@ -1210,6 +1405,7 @@ export type UserCountOutputType = {
   eventParticipations: number
   eventVolunteers: number
   bloodIssues: number
+  notifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1218,6 +1414,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   eventParticipations?: boolean | UserCountOutputTypeCountEventParticipationsArgs
   eventVolunteers?: boolean | UserCountOutputTypeCountEventVolunteersArgs
   bloodIssues?: boolean | UserCountOutputTypeCountBloodIssuesArgs
+  notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -1265,6 +1462,13 @@ export type UserCountOutputTypeCountBloodIssuesArgs<ExtArgs extends runtime.Type
   where?: Prisma.BloodIssueWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1277,6 +1481,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
+  profilePicture?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   donor?: boolean | Prisma.User$donorArgs<ExtArgs>
@@ -1285,6 +1490,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   eventParticipations?: boolean | Prisma.User$eventParticipationsArgs<ExtArgs>
   eventVolunteers?: boolean | Prisma.User$eventVolunteersArgs<ExtArgs>
   bloodIssues?: boolean | Prisma.User$bloodIssuesArgs<ExtArgs>
+  notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1299,6 +1505,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
+  profilePicture?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1314,6 +1521,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
+  profilePicture?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1329,11 +1537,12 @@ export type UserSelectScalar = {
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
+  profilePicture?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "isVerified" | "emailVerified" | "otp" | "otpExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "isVerified" | "emailVerified" | "otp" | "otpExpiry" | "profilePicture" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   donor?: boolean | Prisma.User$donorArgs<ExtArgs>
   donations?: boolean | Prisma.User$donationsArgs<ExtArgs>
@@ -1341,6 +1550,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   eventParticipations?: boolean | Prisma.User$eventParticipationsArgs<ExtArgs>
   eventVolunteers?: boolean | Prisma.User$eventVolunteersArgs<ExtArgs>
   bloodIssues?: boolean | Prisma.User$bloodIssuesArgs<ExtArgs>
+  notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1355,6 +1565,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     eventParticipations: Prisma.$EventParticipantPayload<ExtArgs>[]
     eventVolunteers: Prisma.$EventVolunteerPayload<ExtArgs>[]
     bloodIssues: Prisma.$BloodIssuePayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1367,6 +1578,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     emailVerified: boolean
     otp: string | null
     otpExpiry: Date | null
+    profilePicture: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1769,6 +1981,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   eventParticipations<T extends Prisma.User$eventParticipationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventParticipationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   eventVolunteers<T extends Prisma.User$eventVolunteersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventVolunteersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventVolunteerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bloodIssues<T extends Prisma.User$bloodIssuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bloodIssuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BloodIssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1808,6 +2021,7 @@ export interface UserFieldRefs {
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly otp: Prisma.FieldRef<"User", 'String'>
   readonly otpExpiry: Prisma.FieldRef<"User", 'DateTime'>
+  readonly profilePicture: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -2339,6 +2553,30 @@ export type User$bloodIssuesArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.BloodIssueScalarFieldEnum | Prisma.BloodIssueScalarFieldEnum[]
+}
+
+/**
+ * User.notifications
+ */
+export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

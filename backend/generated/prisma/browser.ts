@@ -82,3 +82,13 @@ export type Gallery = Prisma.GalleryModel
  * 
  */
 export type About = Prisma.AboutModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model BloodRequest
+ * 
+ */
+export type BloodRequest = Prisma.BloodRequestModel

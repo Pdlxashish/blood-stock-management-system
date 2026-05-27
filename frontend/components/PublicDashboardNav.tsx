@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -12,6 +13,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from '@/components/ui/sidebar';
 import {
@@ -21,6 +25,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import {
   Heart,
@@ -28,19 +37,51 @@ import {
   Info,
   UserCheck,
   ChevronDown,
+  ChevronRight,
   LogOut,
   ArrowRightLeft,
   Home,
   Clock,
+  Droplet,
 } from 'lucide-react';
 import { logout, isAdmin } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { useSidebar } from '@/components/ui/sidebar';
 
 // ── Nav config ────────────────────────────────────────────────────────────────
-const NAV_MAIN = [
+interface SubNavItem {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+}
+
+interface NavItemWithSubmenu {
+  icon: React.ElementType;
+  label: string;
+  href?: undefined;
+  submenu: SubNavItem[];
+}
+
+interface NavItemSimple {
+  icon: React.ElementType;
+  label: string;
+  href: string;
+  submenu?: undefined;
+}
+
+type NavItem = NavItemSimple | NavItemWithSubmenu;
+
+const NAV_MAIN: NavItem[] = [
   { icon: Home, label: 'Dashboard', href: '/admin-public' },
-  { icon: Clock, label: 'Pending Donors', href: '/admin-public/pending-donors' },
-  { icon: UserCheck, label: 'Donor Verification', href: '/admin-public/donor-verification' },
+  { icon: Droplet, label: 'Blood Requests', href: '/admin-public/blood-requests' },
+  {
+    icon: UserCheck,
+    label: 'Donor Verification',
+    submenu: [
+      { label: 'Verify Donor', href: '/admin-public/donor-verification', icon: UserCheck },
+      { label: 'Pending Donors', href: '/admin-public/donor-verification/pending-donors', icon: Clock },
+    ],
+  },
   { icon: ImageIcon, label: 'Image Gallery', href: '/admin-public/gallery' },
   { icon: Info, label: 'About', href: '/admin-public/about' },
 ];
@@ -49,6 +90,7 @@ export const PublicDashboardNav = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isMounted } = useAuth();
+  const { state } = useSidebar();
 
   const handleLogout = () => {
     logout();
@@ -94,20 +136,89 @@ export const PublicDashboardNav = () => {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu className='space-y-3'>
-                {NAV_MAIN.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.href}
-                      tooltip={item.label}
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {NAV_MAIN.map((item) =>
+                  item.submenu !== undefined ? (
+                    state === 'collapsed' ? (
+                      // Dropdown for collapsed sidebar
+                      <SidebarMenuItem key={item.label}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <SidebarMenuButton
+                              tooltip={item.label}
+                              isActive={item.submenu.some((s) => pathname === s.href)}
+                              className="w-full justify-center gap-0.5"
+                            >
+                              <item.icon />
+                              <ChevronRight className="h-3 w-3" />
+                            </SidebarMenuButton>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent side="right" align="start" sideOffset={8} className="w-48">
+                            {item.submenu.map((sub) => {
+                              const isActive = pathname === sub.href;
+                              return (
+                                <DropdownMenuItem
+                                  key={sub.href}
+                                  asChild
+                                  className={isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}
+                                >
+                                  <Link href={sub.href} className="flex items-center gap-2 cursor-pointer">
+                                    {sub.icon && <sub.icon className="size-4" />}
+                                    <span>{sub.label}</span>
+                                  </Link>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </SidebarMenuItem>
+                    ) : (
+                      // Collapsible for expanded sidebar
+                      <Collapsible
+                        key={item.label}
+                        asChild
+                        defaultOpen={item.submenu.some((s) => pathname === s.href || pathname.startsWith(s.href))}
+                        className="group/collapsible"
+                      >
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton tooltip={item.label}>
+                              <item.icon />
+                              <span>{item.label}</span>
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.submenu.map((sub) => (
+                                <SidebarMenuSubItem key={sub.href}>
+                                  <SidebarMenuSubButton asChild isActive={pathname === sub.href} tooltip={sub.label}>
+                                    <Link href={sub.href}>
+                                      {sub.icon && <sub.icon className="size-4" />}
+                                      <span>{sub.label}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    )
+                  ) : (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                      >
+                        <Link href={item.href}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -62,7 +62,7 @@ export async function geocodeLocation(location: string): Promise<{ latitude: num
 }
 
 /**
- * Helper function to try geocoding with Nominatim API
+ * Helper function to try geocoding with backend API (no CORS issues)
  */
 async function tryNominatimGeocode(query: string): Promise<{ latitude: number; longitude: number } | null> {
   try {
@@ -72,13 +72,12 @@ async function tryNominatimGeocode(query: string): Promise<{ latitude: number; l
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
     
+    // Use backend API to avoid CORS issues
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&limit=3&countrycodes=np&addressdetails=1`,
+      `${apiUrl}/api/geocoding/forward?q=${encodedQuery}`,
       {
         method: 'GET',
-        headers: {
-          'User-Agent': 'BloodBankManagementSystem/1.0',
-        },
         signal: controller.signal,
       }
     );
@@ -86,16 +85,16 @@ async function tryNominatimGeocode(query: string): Promise<{ latitude: number; l
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('Nominatim API error:', response.status, response.statusText);
+      console.error('Geocoding API error:', response.status, response.statusText);
       return null;
     }
 
     const data = await response.json();
 
-    if (data && data.length > 0) {
+    if (data.success && data.results && data.results.length > 0) {
       // Log all results for debugging
-      console.log(`📍 Nominatim found ${data.length} results for "${query}":`, 
-        data.map((r: any) => ({ 
+      console.log(`📍 Found ${data.results.length} results for "${query}":`, 
+        data.results.map((r: any) => ({ 
           name: r.display_name, 
           lat: r.lat, 
           lon: r.lon,
@@ -105,8 +104,8 @@ async function tryNominatimGeocode(query: string): Promise<{ latitude: number; l
       
       // Return the first (most relevant) result
       const result = {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon),
+        latitude: parseFloat(data.results[0].lat),
+        longitude: parseFloat(data.results[0].lon),
       };
       return result;
     }
@@ -116,7 +115,7 @@ async function tryNominatimGeocode(query: string): Promise<{ latitude: number; l
     if (error.name === 'AbortError') {
       console.error(`⏰ Geocoding timeout for "${query}"`);
     } else if (error.message?.includes('Failed to fetch')) {
-      console.error(`🌐 Network/CORS error for "${query}":`, error.message);
+      console.error(`🌐 Network error for "${query}":`, error.message);
     } else {
       console.error(`❌ Geocoding error for "${query}":`, error);
     }

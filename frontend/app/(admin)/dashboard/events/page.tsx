@@ -22,6 +22,10 @@ export default function EventsPage() {
     description: "",
     status: "UPCOMING",
     capacity: undefined,
+    latitude: undefined,
+    longitude: undefined,
+    banner: null,
+    poster: null,
   });
 
   const { data: events = [], isLoading, error } = useEvents();
@@ -44,14 +48,39 @@ export default function EventsPage() {
     }
 
     try {
-      await createEvent.mutateAsync({
+      // Create event first
+      const createdEvent = await createEvent.mutateAsync({
         title: newEvent.title,
         eventDate: newEvent.eventDate,
         location: newEvent.location,
         description: newEvent.description || undefined,
         status: newEvent.status,
         capacity: newEvent.capacity,
+        latitude: newEvent.latitude,
+        longitude: newEvent.longitude,
       });
+
+      // Upload banner if provided
+      if (newEvent.banner && createdEvent.id) {
+        const bannerFormData = new FormData();
+        bannerFormData.append('banner', newEvent.banner);
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/events/${createdEvent.id}/banner`,
+          bannerFormData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+      }
+
+      // Upload poster if provided
+      if (newEvent.poster && createdEvent.id) {
+        const posterFormData = new FormData();
+        posterFormData.append('poster', newEvent.poster);
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/events/${createdEvent.id}/poster`,
+          posterFormData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+      }
 
       setDialogOpen(false);
       setNewEvent({
@@ -61,6 +90,10 @@ export default function EventsPage() {
         description: "",
         status: "UPCOMING",
         capacity: undefined,
+        latitude: undefined,
+        longitude: undefined,
+        banner: null,
+        poster: null,
       });
       toast.success("Event created successfully");
     } catch (caughtError: unknown) {

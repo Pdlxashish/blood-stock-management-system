@@ -396,7 +396,9 @@ export const ModelName = {
   EventVolunteer: 'EventVolunteer',
   Certificate: 'Certificate',
   Gallery: 'Gallery',
-  About: 'About'
+  About: 'About',
+  Notification: 'Notification',
+  BloodRequest: 'BloodRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "donor" | "bloodPack" | "bloodStockSummary" | "donation" | "bloodIssue" | "bloodIssueItem" | "event" | "eventParticipant" | "eventVolunteer" | "certificate" | "gallery" | "about"
+    modelProps: "user" | "donor" | "bloodPack" | "bloodStockSummary" | "donation" | "bloodIssue" | "bloodIssueItem" | "event" | "eventParticipant" | "eventVolunteer" | "certificate" | "gallery" | "about" | "notification" | "bloodRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1380,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Notification: {
+      payload: Prisma.$NotificationPayload<ExtArgs>
+      fields: Prisma.NotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        update: {
+          args: Prisma.NotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotification>
+        }
+        groupBy: {
+          args: Prisma.NotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    BloodRequest: {
+      payload: Prisma.$BloodRequestPayload<ExtArgs>
+      fields: Prisma.BloodRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BloodRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BloodRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.BloodRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BloodRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        findMany: {
+          args: Prisma.BloodRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>[]
+        }
+        create: {
+          args: Prisma.BloodRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        createMany: {
+          args: Prisma.BloodRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BloodRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.BloodRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        update: {
+          args: Prisma.BloodRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.BloodRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BloodRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BloodRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.BloodRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BloodRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.BloodRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBloodRequest>
+        }
+        groupBy: {
+          args: Prisma.BloodRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BloodRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BloodRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BloodRequestCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1428,6 +1578,7 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   otp: 'otp',
   otpExpiry: 'otpExpiry',
+  profilePicture: 'profilePicture',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1455,6 +1606,9 @@ export const DonorScalarFieldEnum = {
   verifiedAt: 'verifiedAt',
   verifiedBy: 'verifiedBy',
   rejectionReason: 'rejectionReason',
+  reverificationRequested: 'reverificationRequested',
+  reverificationMessage: 'reverificationMessage',
+  reverificationRequestedAt: 'reverificationRequestedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1549,6 +1703,10 @@ export const EventScalarFieldEnum = {
   description: 'description',
   location: 'location',
   eventDate: 'eventDate',
+  banner: 'banner',
+  poster: 'poster',
+  latitude: 'latitude',
+  longitude: 'longitude',
   status: 'status',
   capacity: 'capacity',
   createdAt: 'createdAt',
@@ -1633,12 +1791,57 @@ export const AboutScalarFieldEnum = {
   contactPhone: 'contactPhone',
   contactEmail: 'contactEmail',
   contactEmergency: 'contactEmergency',
+  whatsappNumber: 'whatsappNumber',
+  whatsappEnabled: 'whatsappEnabled',
   whatWeDo: 'whatWeDo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type AboutScalarFieldEnum = (typeof AboutScalarFieldEnum)[keyof typeof AboutScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  link: 'link',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const BloodRequestScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  bloodGroup: 'bloodGroup',
+  unitsNeeded: 'unitsNeeded',
+  urgency: 'urgency',
+  neededBy: 'neededBy',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  stockAvailable: 'stockAvailable',
+  stockCheckedAt: 'stockCheckedAt',
+  fulfilledAt: 'fulfilledAt',
+  fulfilledBy: 'fulfilledBy',
+  bloodIssueId: 'bloodIssueId',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BloodRequestScalarFieldEnum = (typeof BloodRequestScalarFieldEnum)[keyof typeof BloodRequestScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1901,6 +2104,48 @@ export type EnumCertificateTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 export type ListEnumCertificateTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertificateType[]'>
     
 
+
+/**
+ * Reference to a field of type 'NotificationType'
+ */
+export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationType[]'
+ */
+export type ListEnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RequestUrgency'
+ */
+export type EnumRequestUrgencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RequestUrgency'>
+    
+
+
+/**
+ * Reference to a field of type 'RequestUrgency[]'
+ */
+export type ListEnumRequestUrgencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RequestUrgency[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BloodRequestStatus'
+ */
+export type EnumBloodRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BloodRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'BloodRequestStatus[]'
+ */
+export type ListEnumBloodRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BloodRequestStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2009,6 +2254,8 @@ export type GlobalOmitConfig = {
   certificate?: Prisma.CertificateOmit
   gallery?: Prisma.GalleryOmit
   about?: Prisma.AboutOmit
+  notification?: Prisma.NotificationOmit
+  bloodRequest?: Prisma.BloodRequestOmit
 }
 
 /* Types for Logging */

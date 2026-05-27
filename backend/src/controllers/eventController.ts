@@ -65,7 +65,7 @@ export const getEventById = async (req: Request, res: Response) => {
 };
 
 export const createEvent = async (req: Request, res: Response) => {
-  const { title, description, location, eventDate, capacity } = req.body;
+  const { title, description, location, eventDate, capacity, latitude, longitude } = req.body;
 
   const event = await prisma.event.create({
     data: {
@@ -73,7 +73,9 @@ export const createEvent = async (req: Request, res: Response) => {
       description,
       location,
       eventDate: new Date(eventDate),
-      capacity,
+      capacity: capacity ? parseInt(capacity) : null,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
     },
   });
 
@@ -208,4 +210,54 @@ export const removeVolunteer = async (req: Request, res: Response) => {
   });
 
   res.json({ status: "success", message: "Volunteer removed successfully" });
+};
+
+export const uploadEventBanner = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  if (!req.file) {
+    throw new AppError("No file uploaded", 400);
+  }
+
+  const bannerUrl = `/uploads/events/${req.file.filename}`;
+
+  const event = await prisma.event.update({
+    where: { id: id as string },
+    data: { banner: bannerUrl },
+  });
+
+  res.json({ status: "success", data: { banner: bannerUrl, event } });
+};
+
+export const uploadEventPoster = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  if (!req.file) {
+    throw new AppError("No file uploaded", 400);
+  }
+
+  const posterUrl = `/uploads/events/${req.file.filename}`;
+
+  const event = await prisma.event.update({
+    where: { id: id as string },
+    data: { poster: posterUrl },
+  });
+
+  res.json({ status: "success", data: { poster: posterUrl, event } });
+};
+
+export const updateEventLocation = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { location, latitude, longitude } = req.body;
+
+  const event = await prisma.event.update({
+    where: { id: id as string },
+    data: {
+      location,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
+    },
+  });
+
+  res.json({ status: "success", data: event });
 };

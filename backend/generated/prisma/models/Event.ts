@@ -27,10 +27,14 @@ export type AggregateEvent = {
 }
 
 export type EventAvgAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
   capacity: number | null
 }
 
 export type EventSumAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
   capacity: number | null
 }
 
@@ -40,6 +44,10 @@ export type EventMinAggregateOutputType = {
   description: string | null
   location: string | null
   eventDate: Date | null
+  banner: string | null
+  poster: string | null
+  latitude: number | null
+  longitude: number | null
   status: $Enums.EventStatus | null
   capacity: number | null
   createdAt: Date | null
@@ -52,6 +60,10 @@ export type EventMaxAggregateOutputType = {
   description: string | null
   location: string | null
   eventDate: Date | null
+  banner: string | null
+  poster: string | null
+  latitude: number | null
+  longitude: number | null
   status: $Enums.EventStatus | null
   capacity: number | null
   createdAt: Date | null
@@ -64,6 +76,10 @@ export type EventCountAggregateOutputType = {
   description: number
   location: number
   eventDate: number
+  banner: number
+  poster: number
+  latitude: number
+  longitude: number
   status: number
   capacity: number
   createdAt: number
@@ -73,10 +89,14 @@ export type EventCountAggregateOutputType = {
 
 
 export type EventAvgAggregateInputType = {
+  latitude?: true
+  longitude?: true
   capacity?: true
 }
 
 export type EventSumAggregateInputType = {
+  latitude?: true
+  longitude?: true
   capacity?: true
 }
 
@@ -86,6 +106,10 @@ export type EventMinAggregateInputType = {
   description?: true
   location?: true
   eventDate?: true
+  banner?: true
+  poster?: true
+  latitude?: true
+  longitude?: true
   status?: true
   capacity?: true
   createdAt?: true
@@ -98,6 +122,10 @@ export type EventMaxAggregateInputType = {
   description?: true
   location?: true
   eventDate?: true
+  banner?: true
+  poster?: true
+  latitude?: true
+  longitude?: true
   status?: true
   capacity?: true
   createdAt?: true
@@ -110,6 +138,10 @@ export type EventCountAggregateInputType = {
   description?: true
   location?: true
   eventDate?: true
+  banner?: true
+  poster?: true
+  latitude?: true
+  longitude?: true
   status?: true
   capacity?: true
   createdAt?: true
@@ -209,6 +241,10 @@ export type EventGroupByOutputType = {
   description: string | null
   location: string
   eventDate: Date
+  banner: string | null
+  poster: string | null
+  latitude: number | null
+  longitude: number | null
   status: $Enums.EventStatus
   capacity: number | null
   createdAt: Date
@@ -244,6 +280,10 @@ export type EventWhereInput = {
   description?: Prisma.StringNullableFilter<"Event"> | string | null
   location?: Prisma.StringFilter<"Event"> | string
   eventDate?: Prisma.DateTimeFilter<"Event"> | Date | string
+  banner?: Prisma.StringNullableFilter<"Event"> | string | null
+  poster?: Prisma.StringNullableFilter<"Event"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"Event"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Event"> | number | null
   status?: Prisma.EnumEventStatusFilter<"Event"> | $Enums.EventStatus
   capacity?: Prisma.IntNullableFilter<"Event"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Event"> | Date | string
@@ -259,6 +299,10 @@ export type EventOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
+  banner?: Prisma.SortOrderInput | Prisma.SortOrder
+  poster?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   capacity?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -277,6 +321,10 @@ export type EventWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Event"> | string | null
   location?: Prisma.StringFilter<"Event"> | string
   eventDate?: Prisma.DateTimeFilter<"Event"> | Date | string
+  banner?: Prisma.StringNullableFilter<"Event"> | string | null
+  poster?: Prisma.StringNullableFilter<"Event"> | string | null
+  latitude?: Prisma.FloatNullableFilter<"Event"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Event"> | number | null
   status?: Prisma.EnumEventStatusFilter<"Event"> | $Enums.EventStatus
   capacity?: Prisma.IntNullableFilter<"Event"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Event"> | Date | string
@@ -292,6 +340,10 @@ export type EventOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   location?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
+  banner?: Prisma.SortOrderInput | Prisma.SortOrder
+  poster?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   capacity?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -312,6 +364,10 @@ export type EventScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Event"> | string | null
   location?: Prisma.StringWithAggregatesFilter<"Event"> | string
   eventDate?: Prisma.DateTimeWithAggregatesFilter<"Event"> | Date | string
+  banner?: Prisma.StringNullableWithAggregatesFilter<"Event"> | string | null
+  poster?: Prisma.StringNullableWithAggregatesFilter<"Event"> | string | null
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"Event"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"Event"> | number | null
   status?: Prisma.EnumEventStatusWithAggregatesFilter<"Event"> | $Enums.EventStatus
   capacity?: Prisma.IntNullableWithAggregatesFilter<"Event"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Event"> | Date | string
@@ -324,6 +380,10 @@ export type EventCreateInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -339,6 +399,10 @@ export type EventUncheckedCreateInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -354,6 +418,10 @@ export type EventUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -369,6 +437,10 @@ export type EventUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,6 +456,10 @@ export type EventCreateManyInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -396,6 +472,10 @@ export type EventUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,6 +488,10 @@ export type EventUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,6 +509,10 @@ export type EventCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   location?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
+  banner?: Prisma.SortOrder
+  poster?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   status?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -432,6 +520,8 @@ export type EventCountOrderByAggregateInput = {
 }
 
 export type EventAvgOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
 }
 
@@ -441,6 +531,10 @@ export type EventMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   location?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
+  banner?: Prisma.SortOrder
+  poster?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   status?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -453,6 +547,10 @@ export type EventMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   location?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
+  banner?: Prisma.SortOrder
+  poster?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   status?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -460,6 +558,8 @@ export type EventMinOrderByAggregateInput = {
 }
 
 export type EventSumOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
 }
 
@@ -530,6 +630,10 @@ export type EventCreateWithoutDonationsInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -544,6 +648,10 @@ export type EventUncheckedCreateWithoutDonationsInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -574,6 +682,10 @@ export type EventUpdateWithoutDonationsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -588,6 +700,10 @@ export type EventUncheckedUpdateWithoutDonationsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -602,6 +718,10 @@ export type EventCreateWithoutParticipantsInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -616,6 +736,10 @@ export type EventUncheckedCreateWithoutParticipantsInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -646,6 +770,10 @@ export type EventUpdateWithoutParticipantsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -660,6 +788,10 @@ export type EventUncheckedUpdateWithoutParticipantsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -674,6 +806,10 @@ export type EventCreateWithoutVolunteersInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -688,6 +824,10 @@ export type EventUncheckedCreateWithoutVolunteersInput = {
   description?: string | null
   location: string
   eventDate: Date | string
+  banner?: string | null
+  poster?: string | null
+  latitude?: number | null
+  longitude?: number | null
   status?: $Enums.EventStatus
   capacity?: number | null
   createdAt?: Date | string
@@ -718,6 +858,10 @@ export type EventUpdateWithoutVolunteersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,6 +876,10 @@ export type EventUncheckedUpdateWithoutVolunteersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  poster?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumEventStatusFieldUpdateOperationsInput | $Enums.EventStatus
   capacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -795,6 +943,10 @@ export type EventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   description?: boolean
   location?: boolean
   eventDate?: boolean
+  banner?: boolean
+  poster?: boolean
+  latitude?: boolean
+  longitude?: boolean
   status?: boolean
   capacity?: boolean
   createdAt?: boolean
@@ -811,6 +963,10 @@ export type EventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   location?: boolean
   eventDate?: boolean
+  banner?: boolean
+  poster?: boolean
+  latitude?: boolean
+  longitude?: boolean
   status?: boolean
   capacity?: boolean
   createdAt?: boolean
@@ -823,6 +979,10 @@ export type EventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   location?: boolean
   eventDate?: boolean
+  banner?: boolean
+  poster?: boolean
+  latitude?: boolean
+  longitude?: boolean
   status?: boolean
   capacity?: boolean
   createdAt?: boolean
@@ -835,13 +995,17 @@ export type EventSelectScalar = {
   description?: boolean
   location?: boolean
   eventDate?: boolean
+  banner?: boolean
+  poster?: boolean
+  latitude?: boolean
+  longitude?: boolean
   status?: boolean
   capacity?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "location" | "eventDate" | "status" | "capacity" | "createdAt" | "updatedAt", ExtArgs["result"]["event"]>
+export type EventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "location" | "eventDate" | "banner" | "poster" | "latitude" | "longitude" | "status" | "capacity" | "createdAt" | "updatedAt", ExtArgs["result"]["event"]>
 export type EventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   participants?: boolean | Prisma.Event$participantsArgs<ExtArgs>
   volunteers?: boolean | Prisma.Event$volunteersArgs<ExtArgs>
@@ -864,6 +1028,10 @@ export type $EventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     description: string | null
     location: string
     eventDate: Date
+    banner: string | null
+    poster: string | null
+    latitude: number | null
+    longitude: number | null
     status: $Enums.EventStatus
     capacity: number | null
     createdAt: Date
@@ -1299,6 +1467,10 @@ export interface EventFieldRefs {
   readonly description: Prisma.FieldRef<"Event", 'String'>
   readonly location: Prisma.FieldRef<"Event", 'String'>
   readonly eventDate: Prisma.FieldRef<"Event", 'DateTime'>
+  readonly banner: Prisma.FieldRef<"Event", 'String'>
+  readonly poster: Prisma.FieldRef<"Event", 'String'>
+  readonly latitude: Prisma.FieldRef<"Event", 'Float'>
+  readonly longitude: Prisma.FieldRef<"Event", 'Float'>
   readonly status: Prisma.FieldRef<"Event", 'EventStatus'>
   readonly capacity: Prisma.FieldRef<"Event", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Event", 'DateTime'>

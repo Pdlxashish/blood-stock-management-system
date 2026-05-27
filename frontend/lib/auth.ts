@@ -4,8 +4,10 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string;
   role: string;
   isVerified: boolean;
+  profilePicture?: string;
 }
 
 export const getToken = (): string | null => {

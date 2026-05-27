@@ -28,6 +28,9 @@ model User {
   otp           String?
   otpExpiry     DateTime?
   
+  // Profile
+  profilePicture String?  // URL to profile picture
+  
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -38,6 +41,7 @@ model User {
   eventParticipations EventParticipant[]
   eventVolunteers   EventVolunteer[]
   bloodIssues       BloodIssue[]
+  notifications     Notification[]
 
   @@index([email])
   @@index([phone])
@@ -75,6 +79,11 @@ model Donor {
   verifiedAt      DateTime?
   verifiedBy      String?   // User ID of the person who verified
   rejectionReason String?   // Reason if rejected
+  
+  // Re-verification fields
+  reverificationRequested Boolean @default(false)
+  reverificationMessage   String?  // Message from donor requesting re-verification
+  reverificationRequestedAt DateTime?
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -207,6 +216,7 @@ model BloodIssue {
 
   issuedBy_user   User?          @relation(fields: [issuedBy], references: [id], onDelete: SetNull)
   bloodPacksIssued BloodIssueItem[]
+  bloodRequests   BloodRequest[] // Link to blood requests that resulted in this issue
 
   @@index([bloodGroup])
   @@index([issueDate])
@@ -238,6 +248,14 @@ model Event {
   description     String?
   location        String
   eventDate       DateTime
+  
+  // Images
+  banner          String?     // Banner image URL
+  poster          String?     // Poster image URL
+  
+  // Location coordinates
+  latitude        Float?      // For map display
+  longitude       Float?      // For map display
   
   // Status
   status          EventStatus @default(UPCOMING)
@@ -464,10 +482,112 @@ model About {
   contactEmail    String   @default("info@bloodbank.org")
   contactEmergency String  @default("+1 (555) 999-BLOOD")
   
+  // WhatsApp Contact (for blood requests)
+  whatsappNumber  String?  @default("+977-9800000000")
+  whatsappEnabled Boolean  @default(true)
+  
   // What We Do sections (stored as JSON)
   whatWeDo        String   @default("[{\"title\":\"Blood Collection\",\"description\":\"We organize regular blood donation camps and operate mobile collection units.\"},{\"title\":\"Testing & Processing\",\"description\":\"Every unit of blood is thoroughly tested and processed following international standards.\"},{\"title\":\"Storage & Distribution\",\"description\":\"We maintain state-of-the-art storage facilities and efficient distribution systems.\"},{\"title\":\"Community Engagement\",\"description\":\"We conduct awareness programs, donor recruitment drives, and educational initiatives.\"}]")
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        NotificationType
+  title       String
+  message     String
+  link        String?  // Optional link to related resource
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  EVENT_ALERT
+  BLOOD_REQUEST
+  VERIFICATION_APPROVED
+  VERIFICATION_REJECTED
+  VERIFICATION_UNVERIFIED
+  CERTIFICATE_ISSUED
+  DONATION_REMINDER
+  GENERAL
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BLOOD REQUEST SYSTEM (Public blood requests from /need-a-blood)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model BloodRequest {
+  id              String              @id @default(cuid())
+  
+  // Requester details
+  name            String
+  phone           String
+  email           String?
+  address         String
+  
+  // Request details
+  bloodGroup      BloodGroup
+  unitsNeeded     Int                 @default(1)
+  urgency         RequestUrgency      @default(NORMAL)
+  neededBy        DateTime            // Date and time when blood is needed
+  
+  // Status
+  status          BloodRequestStatus  @default(PENDING)
+  
+  // Admin actions
+  reviewedBy      String?             // Admin user ID who reviewed
+  reviewedAt      DateTime?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  
+  // Stock check
+  stockAvailable  Boolean?            // Whether stock is available
+  stockCheckedAt  DateTime?
+  
+  // Fulfillment
+  fulfilledAt     DateTime?
+  fulfilledBy     String?             // User ID who fulfilled the request
+  bloodIssueId    String?             // Link to blood issue record
+  
+  notes           String?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  bloodIssue      BloodIssue?         @relation(fields: [bloodIssueId], references: [id], onDelete: SetNull)
+  
+  @@index([status])
+  @@index([bloodGroup])
+  @@index([neededBy])
+  @@index([createdAt])
+}
+
+enum BloodRequestStatus {
+  PENDING       // Submitted, waiting for admin review
+  APPROVED      // Admin approved, stock available
+  REJECTED      // Admin rejected
+  FULFILLED     // Blood issued to requester
+  CANCELLED     // Requester cancelled
+  EXPIRED       // Request expired (past neededBy date)
+}
+
+enum RequestUrgency {
+  NORMAL
+  URGENT
+  EMERGENCY
 }
  

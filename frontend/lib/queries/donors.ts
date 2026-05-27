@@ -66,10 +66,10 @@ export function useDonors(filters?: any, page?: number, limit?: number) {
   return useQuery({
     queryKey: donorKeys.list({ ...filters, ...(shouldPaginate && { page: actualPage, limit: actualLimit }) }),
     queryFn: async () => {
-      // Default to only showing VERIFIED donors in admin dashboard
+      // Fetch all donors (don't filter by verification status here - let the frontend tabs handle it)
       const params = shouldPaginate 
-        ? { verificationStatus: 'VERIFIED', ...filters, page: actualPage, limit: actualLimit }
-        : { verificationStatus: 'VERIFIED', ...filters };
+        ? { ...filters, page: actualPage, limit: actualLimit }
+        : { ...filters };
       
       const response = await axiosInstance.get<{ status: string; data: Donor[]; pagination?: any }>(
         API_PATHS.DONOR.GET_ALL,

@@ -125,7 +125,15 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <Label>Password</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label>Password</Label>
+                    <Link 
+                      href="/forgot-password" 
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input

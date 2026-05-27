@@ -24,6 +24,10 @@ export interface Event {
   eventDate: string;
   status: EventStatus;
   capacity?: number;
+  banner?: string;
+  poster?: string;
+  latitude?: number;
+  longitude?: number;
   createdAt: string;
   updatedAt: string;
   participants: EventParticipant[];
@@ -70,6 +74,8 @@ interface CreateEventData {
   eventDate: string;
   status?: EventStatus;
   capacity?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface AddVolunteerData {
@@ -112,6 +118,9 @@ export function useEvent(id: string) {
     enabled: !!id,
   });
 }
+
+// Alias for useEvent
+export const useEventById = useEvent;
 
 // Create event
 export function useCreateEvent() {

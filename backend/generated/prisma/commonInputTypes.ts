@@ -433,6 +433,70 @@ export type EnumCertificateTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCertificateTypeFilter<$PrismaModel>
 }
 
+export type EnumNotificationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationType | Prisma.EnumNotificationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel> | $Enums.NotificationType
+}
+
+export type EnumNotificationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationType | Prisma.EnumNotificationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationTypeWithAggregatesFilter<$PrismaModel> | $Enums.NotificationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel>
+}
+
+export type EnumRequestUrgencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RequestUrgency | Prisma.EnumRequestUrgencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel> | $Enums.RequestUrgency
+}
+
+export type EnumBloodRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.BloodRequestStatus | Prisma.EnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel> | $Enums.BloodRequestStatus
+}
+
+export type BoolNullableFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableFilter<$PrismaModel> | boolean | null
+}
+
+export type EnumRequestUrgencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RequestUrgency | Prisma.EnumRequestUrgencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRequestUrgencyWithAggregatesFilter<$PrismaModel> | $Enums.RequestUrgency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel>
+}
+
+export type EnumBloodRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BloodRequestStatus | Prisma.EnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBloodRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.BloodRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel>
+}
+
+export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -852,6 +916,70 @@ export type NestedEnumCertificateTypeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCertificateTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCertificateTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumNotificationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationType | Prisma.EnumNotificationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel> | $Enums.NotificationType
+}
+
+export type NestedEnumNotificationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationType | Prisma.EnumNotificationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationTypeWithAggregatesFilter<$PrismaModel> | $Enums.NotificationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotificationTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumRequestUrgencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RequestUrgency | Prisma.EnumRequestUrgencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel> | $Enums.RequestUrgency
+}
+
+export type NestedEnumBloodRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.BloodRequestStatus | Prisma.EnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel> | $Enums.BloodRequestStatus
+}
+
+export type NestedBoolNullableFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableFilter<$PrismaModel> | boolean | null
+}
+
+export type NestedEnumRequestUrgencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RequestUrgency | Prisma.EnumRequestUrgencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RequestUrgency[] | Prisma.ListEnumRequestUrgencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRequestUrgencyWithAggregatesFilter<$PrismaModel> | $Enums.RequestUrgency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRequestUrgencyFilter<$PrismaModel>
+}
+
+export type NestedEnumBloodRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BloodRequestStatus | Prisma.EnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BloodRequestStatus[] | Prisma.ListEnumBloodRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBloodRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.BloodRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBloodRequestStatusFilter<$PrismaModel>
+}
+
+export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
 }
 
 

@@ -4,9 +4,11 @@ import {
   loginUser,
   getUserProfile,
   updateUserProfile,
+  updateProfilePicture,
   adminLogin,
 } from '../controllers/authController';
 import { protect } from '../middleware/authMiddleware';
+import { upload } from '../middleware/upload';
 
 const router = Router();
 
@@ -33,5 +35,6 @@ router.get('/register', (_, res) =>
 // Protected Routes
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
+router.patch('/profile/picture', protect, upload.single('profilePicture'), updateProfilePicture);
 
 export default router;

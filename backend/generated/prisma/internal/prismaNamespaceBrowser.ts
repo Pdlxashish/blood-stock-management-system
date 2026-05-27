@@ -63,7 +63,9 @@ export const ModelName = {
   EventVolunteer: 'EventVolunteer',
   Certificate: 'Certificate',
   Gallery: 'Gallery',
-  About: 'About'
+  About: 'About',
+  Notification: 'Notification',
+  BloodRequest: 'BloodRequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -93,6 +95,7 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   otp: 'otp',
   otpExpiry: 'otpExpiry',
+  profilePicture: 'profilePicture',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -120,6 +123,9 @@ export const DonorScalarFieldEnum = {
   verifiedAt: 'verifiedAt',
   verifiedBy: 'verifiedBy',
   rejectionReason: 'rejectionReason',
+  reverificationRequested: 'reverificationRequested',
+  reverificationMessage: 'reverificationMessage',
+  reverificationRequestedAt: 'reverificationRequestedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -214,6 +220,10 @@ export const EventScalarFieldEnum = {
   description: 'description',
   location: 'location',
   eventDate: 'eventDate',
+  banner: 'banner',
+  poster: 'poster',
+  latitude: 'latitude',
+  longitude: 'longitude',
   status: 'status',
   capacity: 'capacity',
   createdAt: 'createdAt',
@@ -298,12 +308,57 @@ export const AboutScalarFieldEnum = {
   contactPhone: 'contactPhone',
   contactEmail: 'contactEmail',
   contactEmergency: 'contactEmergency',
+  whatsappNumber: 'whatsappNumber',
+  whatsappEnabled: 'whatsappEnabled',
   whatWeDo: 'whatWeDo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type AboutScalarFieldEnum = (typeof AboutScalarFieldEnum)[keyof typeof AboutScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  link: 'link',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const BloodRequestScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  bloodGroup: 'bloodGroup',
+  unitsNeeded: 'unitsNeeded',
+  urgency: 'urgency',
+  neededBy: 'neededBy',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  approvedAt: 'approvedAt',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  stockAvailable: 'stockAvailable',
+  stockCheckedAt: 'stockCheckedAt',
+  fulfilledAt: 'fulfilledAt',
+  fulfilledBy: 'fulfilledBy',
+  bloodIssueId: 'bloodIssueId',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BloodRequestScalarFieldEnum = (typeof BloodRequestScalarFieldEnum)[keyof typeof BloodRequestScalarFieldEnum]
 
 
 export const SortOrder = {

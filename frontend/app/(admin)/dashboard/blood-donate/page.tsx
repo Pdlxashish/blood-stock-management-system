@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import {
-  Heart, Plus, Search, User, Building2, Droplets, TrendingUp, CheckCircle2, Home, Loader2, AlertCircle
+  Heart, Plus, Search, User, Building2, Droplets, TrendingUp, CheckCircle2, Home, Loader2, AlertCircle, Bell, Phone, MapPin
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,9 +30,28 @@ export default function BloodDonatePage() {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterBloodGroup, setFilterBloodGroup] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [approvedRequests, setApprovedRequests] = useState<any[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
 
   // Fetch blood issues using TanStack Query
   const { data: bloodIssues = [], isLoading, error } = useBloodIssues();
+
+  // Fetch approved blood requests
+  useEffect(() => {
+    const fetchApprovedRequests = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/approved`
+        );
+        setApprovedRequests(response.data.data);
+      } catch (error) {
+        console.error('Failed to fetch approved requests:', error);
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+    fetchApprovedRequests();
+  }, []);
 
   // Calculate stats
   const totalUnits = bloodIssues.reduce((sum, issue) => sum + issue.unitsIssued, 0);
@@ -254,6 +274,73 @@ export default function BloodDonatePage() {
           </Button>
         )}
       </div>
+
+      {/* ── Approved Blood Requests ── */}
+      {!loadingRequests && approvedRequests.length > 0 && (
+        <Card className="mb-6 border-orange-200 bg-orange-50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-orange-600" />
+                  Urgent Blood Requests
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {approvedRequests.length} approved request{approvedRequests.length !== 1 ? 's' : ''} waiting for blood issuance
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {approvedRequests.map((request) => (
+                <div
+                  key={request.id}
+                  className="bg-white p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="font-semibold text-gray-900">{request.name}</h4>
+                        <Badge variant="outline" className="font-bold text-red-600">
+                          {request.bloodGroup}
+                        </Badge>
+                        {request.urgency === 'EMERGENCY' && (
+                          <Badge className="bg-red-600">EMERGENCY</Badge>
+                        )}
+                        {request.urgency === 'URGENT' && (
+                          <Badge className="bg-orange-600">URGENT</Badge>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {request.phone}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Droplets className="h-3 w-3" />
+                          {request.unitsNeeded} unit{request.unitsNeeded !== 1 ? 's' : ''} needed
+                        </div>
+                        <div className="flex items-center gap-1 col-span-2">
+                          <MapPin className="h-3 w-3" />
+                          {request.address}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => router.push(`/dashboard/blood-donate/donate-form?requestId=${request.id}`)}
+                    >
+                      Issue Blood
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── All Donations Table ── */}
       <Card>

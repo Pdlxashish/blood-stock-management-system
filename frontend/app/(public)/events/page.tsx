@@ -67,46 +67,56 @@ export default function PublicEventsPage() {
                 const statusBadge = getStatusBadge(event.status);
                 const eventDate = new Date(event.eventDate);
                 const participantCount = event.participants?.length || 0;
+                const bannerUrl = event.banner ? `${process.env.NEXT_PUBLIC_API_URL}${event.banner}` : null;
 
                 return (
-                  <Card key={event.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-5">
-                      <Badge variant="outline" className={`text-[10px] mb-3 ${statusBadge.color}`}>
-                        {statusBadge.label}
-                      </Badge>
-                      <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2">{event.title}</h3>
-                      
-                      <div className="space-y-2 text-sm text-gray-600 mb-4">
-                        <p className="flex items-center gap-2">
-                          <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" />
-                          {format(eventDate, 'MMMM d, yyyy')}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                          {format(eventDate, 'h:mm a')}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="line-clamp-1">{event.location}</span>
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Users className="h-3.5 w-3.5 flex-shrink-0" />
-                          {participantCount} registered
-                          {event.capacity && ` / ${event.capacity} capacity`}
-                        </p>
-                      </div>
-
-                      {event.description && (
-                        <p className="text-xs text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+                  <Link key={event.id} href={`/events/${event.id}`} className="block">
+                    <Card className="border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer h-full">
+                      {bannerUrl && (
+                        <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                          <img 
+                            src={bannerUrl} 
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       )}
+                      <CardContent className="p-5">
+                        <Badge variant="outline" className={`text-[10px] mb-3 ${statusBadge.color}`}>
+                          {statusBadge.label}
+                        </Badge>
+                        <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2 text-lg">{event.title}</h3>
+                        
+                        <div className="space-y-2 text-sm text-gray-600 mb-4">
+                          <p className="flex items-center gap-2">
+                            <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" />
+                            {format(eventDate, 'MMMM d, yyyy')}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                            {format(eventDate, 'h:mm a')}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span className="line-clamp-1">{event.location}</span>
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Users className="h-3.5 w-3.5 flex-shrink-0" />
+                            {participantCount} registered
+                            {event.capacity && ` / ${event.capacity} capacity`}
+                          </p>
+                        </div>
 
-                      <Link href={`/events/${event.id}`}>
+                        {event.description && (
+                          <p className="text-xs text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+                        )}
+
                         <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
                           View Details
                         </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>

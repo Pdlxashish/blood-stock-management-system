@@ -19,6 +19,22 @@ export interface Certificate {
   };
 }
 
+// Fetch certificates for a specific user
+export function useCertificatesByUser(userId: string) {
+  return useQuery({
+    queryKey: ['certificates', 'user', userId],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/api/certificates?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch certificates');
+      }
+      const result = await response.json();
+      return result.data as Certificate[];
+    },
+    enabled: !!userId,
+  });
+}
+
 // Fetch all certificates
 export function useCertificates() {
   return useQuery({

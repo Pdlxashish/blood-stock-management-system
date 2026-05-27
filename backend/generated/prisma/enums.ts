@@ -123,3 +123,38 @@ export const DonorVerificationStatus = {
 } as const
 
 export type DonorVerificationStatus = (typeof DonorVerificationStatus)[keyof typeof DonorVerificationStatus]
+
+
+export const NotificationType = {
+  EVENT_ALERT: 'EVENT_ALERT',
+  BLOOD_REQUEST: 'BLOOD_REQUEST',
+  VERIFICATION_APPROVED: 'VERIFICATION_APPROVED',
+  VERIFICATION_REJECTED: 'VERIFICATION_REJECTED',
+  VERIFICATION_UNVERIFIED: 'VERIFICATION_UNVERIFIED',
+  CERTIFICATE_ISSUED: 'CERTIFICATE_ISSUED',
+  DONATION_REMINDER: 'DONATION_REMINDER',
+  GENERAL: 'GENERAL'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const BloodRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  FULFILLED: 'FULFILLED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type BloodRequestStatus = (typeof BloodRequestStatus)[keyof typeof BloodRequestStatus]
+
+
+export const RequestUrgency = {
+  NORMAL: 'NORMAL',
+  URGENT: 'URGENT',
+  EMERGENCY: 'EMERGENCY'
+} as const
+
+export type RequestUrgency = (typeof RequestUrgency)[keyof typeof RequestUrgency]

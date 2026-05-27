@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { Application } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
 import { prisma } from '../lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -18,6 +19,10 @@ import accountClaimRoutes from './routes/accountClaimRoutes';
 import galleryRoutes from './routes/galleryRoutes';
 import aboutRoutes from './routes/aboutRoutes';
 import otpRoutes from './routes/otpRoutes';
+import notificationRoutes from './routes/notificationRoutes';
+import passwordResetRoutes from './routes/passwordResetRoutes';
+import bloodRequestRoutes from './routes/bloodRequestRoutes';
+import geocodingRoutes from './routes/geocodingRoutes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -37,6 +42,9 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files (profile pictures)
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 //
 // ✅ 3. Health Check
@@ -60,6 +68,10 @@ app.use('/api/account-claim', accountClaimRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/otp', otpRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/password-reset', passwordResetRoutes);
+app.use('/api/blood-requests', bloodRequestRoutes);
+app.use('/api/geocoding', geocodingRoutes);
 
 // Serve static files for uploaded images
 app.use('/uploads', express.static('uploads'));

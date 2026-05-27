@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import axios from 'axios';
 import { ArrowLeft, AlertCircle, CheckCircle2, Package, Home } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,8 @@ interface BloodIssueForm {
 
 export default function DonateFormPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get('requestId');
   
   const [formData, setFormData] = useState<BloodIssueForm>({
     donationType: 'person',
@@ -43,10 +46,44 @@ export default function DonateFormPage() {
   });
 
   const [selectedPacks, setSelectedPacks] = useState<Set<string>>(new Set());
+  const [bloodRequest, setBloodRequest] = useState<any>(null);
+  const [loadingRequest, setLoadingRequest] = useState(false);
 
   // Fetch blood packs using TanStack Query
   const { data: allBloodPacks = [], isLoading: packsLoading } = useBloodPacks();
   const createBloodIssue = useCreateBloodIssue();
+
+  // Fetch blood request if requestId is provided
+  useEffect(() => {
+    if (requestId) {
+      const fetchBloodRequest = async () => {
+        try {
+          setLoadingRequest(true);
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/${requestId}`
+          );
+          const request = response.data.data;
+          setBloodRequest(request);
+          
+          // Pre-fill form with blood request data
+          setFormData({
+            donationType: 'person',
+            name: request.name,
+            bloodGroup: request.bloodGroup,
+            units: request.unitsNeeded.toString(),
+            contact: request.phone,
+            notes: `Blood Request - Address: ${request.address}${request.notes ? '\nNotes: ' + request.notes : ''}`,
+          });
+        } catch (error) {
+          console.error('Failed to fetch blood request:', error);
+          sonnerToast.error('Failed to load blood request details');
+        } finally {
+          setLoadingRequest(false);
+        }
+      };
+      fetchBloodRequest();
+    }
+  }, [requestId]);
 
   // Get unique blood groups that have available stock (dynamic)
   const availableBloodGroups = useMemo(() => {
@@ -138,7 +175,7 @@ export default function DonateFormPage() {
     }
 
     try {
-      await createBloodIssue.mutateAsync({
+      const issueResult = await createBloodIssue.mutateAsync({
         recipientName: formData.name,
         recipientType: formData.donationType === 'person' ? 'PERSON' : 'ORGANIZATION',
         bloodGroup: formData.bloodGroup.replace('+', '_POSITIVE').replace('-', '_NEGATIVE'), // Convert to DB format
@@ -147,6 +184,22 @@ export default function DonateFormPage() {
         notes: formData.notes || undefined,
         bloodPackIds: Array.from(selectedPacks),
       });
+
+      // If this was from a blood request, mark it as fulfilled
+      if (requestId && bloodRequest) {
+        try {
+          await axios.patch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/${requestId}/fulfill`,
+            {
+              fulfilledBy: 'admin',
+              bloodIssueId: issueResult.data.id,
+            }
+          );
+        } catch (error) {
+          console.error('Failed to mark blood request as fulfilled:', error);
+          // Don't fail the whole operation if this fails
+        }
+      }
 
       sonnerToast.success(`Successfully issued ${unitsNeeded} unit(s) of ${formData.bloodGroup} blood to ${formData.name}`);
       
@@ -210,6 +263,24 @@ export default function DonateFormPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900">Blood Issue Form</h1>
           <p className="text-sm text-slate-500 mt-1">Record blood issuance and select specific blood packs</p>
+          
+          {/* Blood Request Badge */}
+          {bloodRequest && (
+            <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <span className="text-sm font-medium text-orange-900">
+                  Fulfilling Blood Request from {bloodRequest.name}
+                </span>
+                {bloodRequest.urgency === 'EMERGENCY' && (
+                  <Badge className="bg-red-600">EMERGENCY</Badge>
+                )}
+                {bloodRequest.urgency === 'URGENT' && (
+                  <Badge className="bg-orange-600">URGENT</Badge>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

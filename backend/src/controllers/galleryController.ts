@@ -69,7 +69,7 @@ export const getGalleryImage = asyncHandler(async (req: Request, res: Response) 
   const { id } = req.params;
 
   const image = await prisma.gallery.findUnique({
-    where: { id }
+    where: { id: id as string }
   });
 
   if (!image) {
@@ -139,7 +139,7 @@ export const updateGalleryImage = asyncHandler(async (req: Request, res: Respons
   const file = req.file;
 
   const existingImage = await prisma.gallery.findUnique({
-    where: { id }
+    where: { id: id as string }
   });
 
   if (!existingImage) {
@@ -172,7 +172,7 @@ export const updateGalleryImage = asyncHandler(async (req: Request, res: Respons
   }
 
   const updatedImage = await prisma.gallery.update({
-    where: { id },
+    where: { id: id as string },
     data: updateData
   });
 
@@ -190,7 +190,7 @@ export const deleteGalleryImage = asyncHandler(async (req: Request, res: Respons
   const { id } = req.params;
 
   const image = await prisma.gallery.findUnique({
-    where: { id }
+    where: { id: id as string }
   });
 
   if (!image) {
@@ -210,7 +210,7 @@ export const deleteGalleryImage = asyncHandler(async (req: Request, res: Respons
   }
 
   await prisma.gallery.delete({
-    where: { id }
+    where: { id: id as string }
   });
 
   res.json({
@@ -235,7 +235,7 @@ export const reorderGalleryImages = asyncHandler(async (req: Request, res: Respo
 
   // Update all images in a transaction
   await prisma.$transaction(
-    imageOrders.map(({ id, order }) =>
+    imageOrders.map(({ id, order }: { id: string; order: number }) =>
       prisma.gallery.update({
         where: { id },
         data: { order }

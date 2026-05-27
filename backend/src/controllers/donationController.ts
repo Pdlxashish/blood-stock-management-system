@@ -152,32 +152,42 @@ export const deleteDonation = async (req: Request, res: Response) => {
 
 // Blood Collection - Creates donation record and blood pack
 export const recordBloodCollection = async (req: Request, res: Response) => {
-  const {
-    donorId,
-    donorName,
-    donorPhone,
-    donorEmail,
-    bloodGroup,
-    dateOfBirth,
-    weight,
-    location,
-    city,
-    address,
-    latitude, // Add latitude from frontend
-    longitude, // Add longitude from frontend
-    units,
-    collectionDate,
-    collectionLocation,
-    eventId, // Add eventId from frontend
-    storageLocation,
-    notes,
-    medicalNotes,
-  } = req.body;
+  try {
+    const {
+      donorId,
+      donorName,
+      donorPhone,
+      donorEmail,
+      bloodGroup,
+      dateOfBirth,
+      weight,
+      location,
+      city,
+      address,
+      latitude, // Add latitude from frontend
+      longitude, // Add longitude from frontend
+      units,
+      collectionDate,
+      collectionLocation,
+      eventId, // Add eventId from frontend
+      storageLocation,
+      notes,
+      medicalNotes,
+    } = req.body;
 
-  // Validate required fields
-  if (!donorName || !donorPhone || !bloodGroup || !collectionDate) {
-    throw new AppError("Missing required fields", 400);
-  }
+    console.log('📥 Blood collection request received:', {
+      donorName,
+      donorPhone,
+      bloodGroup,
+      city,
+      collectionDate,
+      hasLatLong: !!(latitude && longitude),
+    });
+
+    // Validate required fields
+    if (!donorName || !donorPhone || !bloodGroup || !collectionDate) {
+      throw new AppError("Missing required fields", 400);
+    }
 
   // Convert blood group format (A+ -> A_POSITIVE)
   const bloodGroupMap: Record<string, string> = {
@@ -193,13 +203,35 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
 
   const dbBloodGroup = bloodGroupMap[bloodGroup] || bloodGroup;
 
-  // Start transaction
+  // Pre-compute geocoding BEFORE transaction to avoid blocking database
+  let geocodedLatitude = latitude;
+  let geocodedLongitude = longitude;
+  
+  if (!geocodedLatitude || !geocodedLongitude) {
+    const cityToGeocode = city || location;
+    if (cityToGeocode) {
+      console.log(`🌍 Geocoding ${cityToGeocode} before transaction...`);
+      const coords = await geocodeLocation(cityToGeocode);
+      if (coords) {
+        geocodedLatitude = coords.latitude;
+        geocodedLongitude = coords.longitude;
+        console.log(`✅ Geocoded ${cityToGeocode}:`, coords);
+      }
+    }
+  } else {
+    console.log(`✅ Using provided coordinates: ${geocodedLatitude}, ${geocodedLongitude}`);
+  }
+
+  // Start transaction with increased timeout (30 seconds instead of default 5)
   const result = await prisma.$transaction(async (tx) => {
     let donor = null;
     let userId = null;
 
+    console.log('🔍 Transaction started - checking for existing donor...');
+
     // If donorId provided, get existing donor
     if (donorId) {
+      console.log(`📋 DonorId provided: ${donorId}`);
       donor = await tx.donor.findUnique({
         where: { id: donorId },
         include: { user: true },
@@ -207,26 +239,21 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
 
       if (donor) {
         userId = donor.userId;
-        
-        // Update donor's donation count and last donation date
-        await tx.donor.update({
-          where: { id: donorId },
-          data: {
-            lastDonationDate: new Date(collectionDate),
-            totalDonations: { increment: parseInt(units) || 1 },
-          },
-        });
+        console.log(`✅ Found existing donor: ${donor.id}, lastDonation: ${donor.lastDonationDate}`);
+        // Don't update yet - we'll check cooldown first
       }
     }
 
     // If no donor found, create a temporary user and donor record
     if (!userId) {
+      console.log(`🔍 No donorId or donor not found. Checking for user by phone: ${donorPhone}`);
       // Check if user with this phone already exists
       let user = await tx.user.findFirst({
         where: { phone: donorPhone },
       });
 
       if (!user) {
+        console.log('➕ Creating new user (walk-in donor)');
         // Create new user (walk-in donor)
         user = await tx.user.create({
           data: {
@@ -235,9 +262,13 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
             email: donorEmail || `${donorPhone}@walkin.local`,
             password: 'WALK_IN_DONOR', // Placeholder password
             role: 'DONOR',
-            isVerified: false, // Walk-in donors are not verified web users
+            isVerified: false, // Walk-in donors are not verified yet
+            emailVerified: false, // Walk-in donors need to verify email
           },
         });
+        console.log(`✅ Created new user: ${user.id}`);
+      } else {
+        console.log(`✅ Found existing user by phone: ${user.id}`);
       }
 
       userId = user.id;
@@ -248,26 +279,12 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
       });
 
       if (!donor) {
-        // Geocode coordinates - use provided coordinates or geocode city
-        let finalLatitude = latitude;
-        let finalLongitude = longitude;
-        
-        // If coordinates not provided from frontend, try geocoding the city
-        if (!finalLatitude || !finalLongitude) {
-          const cityToGeocode = city || location;
-          if (cityToGeocode) {
-            const coords = await geocodeLocation(cityToGeocode);
-            if (coords) {
-              finalLatitude = coords.latitude;
-              finalLongitude = coords.longitude;
-              console.log(`Geocoded ${cityToGeocode}:`, coords);
-            }
-          }
-        } else {
-          console.log(`Using provided coordinates: ${finalLatitude}, ${finalLongitude}`);
-        }
+        console.log('➕ Creating new donor profile (first-time donor)');
+        // Use pre-computed coordinates from before transaction
+        const finalLatitude = geocodedLatitude;
+        const finalLongitude = geocodedLongitude;
 
-        // Create donor profile
+        // Create donor profile (NEW donor - no lastDonationDate yet)
         donor = await tx.donor.create({
           data: {
             userId,
@@ -280,61 +297,67 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
             dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
             weight: weight ? parseFloat(weight) : undefined,
             medicalNotes: medicalNotes,
-            totalDonations: parseInt(units) || 1,
-            lastDonationDate: new Date(collectionDate),
+            totalDonations: 0, // Will be incremented after cooldown check
+            lastDonationDate: null, // No previous donation
           },
         });
+        console.log(`✅ Created new donor profile: ${donor.id}`);
       } else {
-        // Update existing donor - use provided coordinates or geocode if needed
-        const updateData: any = {
-          lastDonationDate: new Date(collectionDate),
-          totalDonations: { increment: parseInt(units) || 1 },
-        };
-
-        if (city) updateData.city = city;
-        if (address) updateData.address = address;
-        if (dateOfBirth) updateData.dateOfBirth = new Date(dateOfBirth);
-        if (weight) updateData.weight = parseFloat(weight);
-        if (medicalNotes) updateData.medicalNotes = medicalNotes;
-
-        // Use provided coordinates or geocode if city provided and donor doesn't have coordinates
-        if (latitude && longitude) {
-          updateData.latitude = latitude;
-          updateData.longitude = longitude;
-          console.log(`Using provided coordinates for existing donor: ${latitude}, ${longitude}`);
-        } else if (city && (!donor.latitude || !donor.longitude)) {
-          const coords = await geocodeLocation(city);
-          if (coords) {
-            updateData.latitude = coords.latitude;
-            updateData.longitude = coords.longitude;
-            console.log(`Geocoded ${city} for existing donor:`, coords);
-          }
-        }
-
-        await tx.donor.update({
-          where: { id: donor.id },
-          data: updateData,
-        });
+        console.log(`✅ Found existing donor profile: ${donor.id}, lastDonation: ${donor.lastDonationDate}`);
       }
+      // If donor exists, don't update yet - check cooldown first
     }
 
-    // ✅ Enforce 90-day donation cooldown for registered (verified) users
-    if (userId && donor) {
-      // Only enforce cooldown for PERSON donors (not organizations)
-      if (donor.donorType !== 'ORGANIZATION' && donor.lastDonationDate) {
+    // ✅ Enforce 90-day donation cooldown for existing donors
+    console.log(`🔒 Checking cooldown - lastDonationDate: ${donor?.lastDonationDate}, donorType: ${donor?.donorType}`);
+    if (userId && donor && donor.lastDonationDate) {
+      // Only enforce cooldown for PERSON donors (not organizations) who have donated before
+      if (donor.donorType !== 'ORGANIZATION') {
         const nextEligibleDate = new Date(donor.lastDonationDate);
         nextEligibleDate.setDate(nextEligibleDate.getDate() + 90);
-        const now = new Date();
+        const now = new Date(collectionDate); // Use collection date for comparison
+
+        console.log(`📅 Cooldown check: now=${now.toISOString()}, nextEligible=${nextEligibleDate.toISOString()}`);
 
         if (now < nextEligibleDate) {
           const msRemaining = nextEligibleDate.getTime() - now.getTime();
           const daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
+          console.log(`❌ Cooldown failed: ${daysRemaining} days remaining`);
           throw new AppError(
             `This donor is not eligible to donate yet. They can donate again in ${daysRemaining} day(s) on ${nextEligibleDate.toLocaleDateString()}.`,
             400
           );
         }
+        console.log('✅ Cooldown check passed');
       }
+    } else {
+      console.log('✅ No cooldown check needed (new donor or no previous donation)');
+    }
+
+    // ✅ Cooldown check passed - now update the donor
+    if (donor) {
+      const updateData: any = {
+        lastDonationDate: new Date(collectionDate),
+        totalDonations: { increment: parseInt(units) || 1 },
+      };
+
+      // Update additional fields if provided
+      if (city) updateData.city = city;
+      if (address) updateData.address = address;
+      if (dateOfBirth) updateData.dateOfBirth = new Date(dateOfBirth);
+      if (weight) updateData.weight = parseFloat(weight);
+      if (medicalNotes) updateData.medicalNotes = medicalNotes;
+
+      // Use pre-computed coordinates
+      if (geocodedLatitude && geocodedLongitude) {
+        updateData.latitude = geocodedLatitude;
+        updateData.longitude = geocodedLongitude;
+      }
+
+      await tx.donor.update({
+        where: { id: donor.id },
+        data: updateData,
+      });
     }
 
     // Create donation record
@@ -420,6 +443,9 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
     }
 
     return { donation, bloodPack, donor };
+  }, {
+    maxWait: 10000, // Maximum time to wait for a transaction slot (10 seconds)
+    timeout: 30000, // Maximum time for the transaction to complete (30 seconds)
   });
 
   // Send thank you notification
@@ -446,6 +472,28 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
     message: "Blood collection recorded successfully",
     data: result,
   });
+  } catch (error: any) {
+    console.error('❌ Blood collection error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+      isAppError: error instanceof AppError,
+    });
+    
+    // If it's already an AppError, just re-throw it
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    // Check if it's a donation eligibility error (thrown inside transaction)
+    if (error.message && error.message.includes('not eligible to donate')) {
+      throw new AppError(error.message, 400);
+    }
+    
+    // For other errors, re-throw to be handled by error middleware
+    throw error;
+  }
 };
 
 // Search donors by name, phone, or email

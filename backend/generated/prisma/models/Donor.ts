@@ -60,6 +60,9 @@ export type DonorMinAggregateOutputType = {
   verifiedAt: Date | null
   verifiedBy: string | null
   rejectionReason: string | null
+  reverificationRequested: boolean | null
+  reverificationMessage: string | null
+  reverificationRequestedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -84,6 +87,9 @@ export type DonorMaxAggregateOutputType = {
   verifiedAt: Date | null
   verifiedBy: string | null
   rejectionReason: string | null
+  reverificationRequested: boolean | null
+  reverificationMessage: string | null
+  reverificationRequestedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -108,6 +114,9 @@ export type DonorCountAggregateOutputType = {
   verifiedAt: number
   verifiedBy: number
   rejectionReason: number
+  reverificationRequested: number
+  reverificationMessage: number
+  reverificationRequestedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -148,6 +157,9 @@ export type DonorMinAggregateInputType = {
   verifiedAt?: true
   verifiedBy?: true
   rejectionReason?: true
+  reverificationRequested?: true
+  reverificationMessage?: true
+  reverificationRequestedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -172,6 +184,9 @@ export type DonorMaxAggregateInputType = {
   verifiedAt?: true
   verifiedBy?: true
   rejectionReason?: true
+  reverificationRequested?: true
+  reverificationMessage?: true
+  reverificationRequestedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -196,6 +211,9 @@ export type DonorCountAggregateInputType = {
   verifiedAt?: true
   verifiedBy?: true
   rejectionReason?: true
+  reverificationRequested?: true
+  reverificationMessage?: true
+  reverificationRequestedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -307,6 +325,9 @@ export type DonorGroupByOutputType = {
   verifiedAt: Date | null
   verifiedBy: string | null
   rejectionReason: string | null
+  reverificationRequested: boolean
+  reverificationMessage: string | null
+  reverificationRequestedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: DonorCountAggregateOutputType | null
@@ -354,6 +375,9 @@ export type DonorWhereInput = {
   verifiedAt?: Prisma.DateTimeNullableFilter<"Donor"> | Date | string | null
   verifiedBy?: Prisma.StringNullableFilter<"Donor"> | string | null
   rejectionReason?: Prisma.StringNullableFilter<"Donor"> | string | null
+  reverificationRequested?: Prisma.BoolFilter<"Donor"> | boolean
+  reverificationMessage?: Prisma.StringNullableFilter<"Donor"> | string | null
+  reverificationRequestedAt?: Prisma.DateTimeNullableFilter<"Donor"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Donor"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Donor"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -380,6 +404,9 @@ export type DonorOrderByWithRelationInput = {
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  reverificationRequested?: Prisma.SortOrder
+  reverificationMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  reverificationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -409,6 +436,9 @@ export type DonorWhereUniqueInput = Prisma.AtLeast<{
   verifiedAt?: Prisma.DateTimeNullableFilter<"Donor"> | Date | string | null
   verifiedBy?: Prisma.StringNullableFilter<"Donor"> | string | null
   rejectionReason?: Prisma.StringNullableFilter<"Donor"> | string | null
+  reverificationRequested?: Prisma.BoolFilter<"Donor"> | boolean
+  reverificationMessage?: Prisma.StringNullableFilter<"Donor"> | string | null
+  reverificationRequestedAt?: Prisma.DateTimeNullableFilter<"Donor"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Donor"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Donor"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -435,6 +465,9 @@ export type DonorOrderByWithAggregationInput = {
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  reverificationRequested?: Prisma.SortOrder
+  reverificationMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  reverificationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DonorCountOrderByAggregateInput
@@ -467,6 +500,9 @@ export type DonorScalarWhereWithAggregatesInput = {
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Donor"> | Date | string | null
   verifiedBy?: Prisma.StringNullableWithAggregatesFilter<"Donor"> | string | null
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"Donor"> | string | null
+  reverificationRequested?: Prisma.BoolWithAggregatesFilter<"Donor"> | boolean
+  reverificationMessage?: Prisma.StringNullableWithAggregatesFilter<"Donor"> | string | null
+  reverificationRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Donor"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Donor"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Donor"> | Date | string
 }
@@ -490,6 +526,9 @@ export type DonorCreateInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDonorInput
@@ -516,6 +555,9 @@ export type DonorUncheckedCreateInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bloodPacks?: Prisma.BloodPackUncheckedCreateNestedManyWithoutDonorInput
@@ -540,6 +582,9 @@ export type DonorUpdateInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDonorNestedInput
@@ -566,6 +611,9 @@ export type DonorUncheckedUpdateInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bloodPacks?: Prisma.BloodPackUncheckedUpdateManyWithoutDonorNestedInput
@@ -591,6 +639,9 @@ export type DonorCreateManyInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -614,6 +665,9 @@ export type DonorUpdateManyMutationInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -638,6 +692,9 @@ export type DonorUncheckedUpdateManyInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -667,6 +724,9 @@ export type DonorCountOrderByAggregateInput = {
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  reverificationRequested?: Prisma.SortOrder
+  reverificationMessage?: Prisma.SortOrder
+  reverificationRequestedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -698,6 +758,9 @@ export type DonorMaxOrderByAggregateInput = {
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  reverificationRequested?: Prisma.SortOrder
+  reverificationMessage?: Prisma.SortOrder
+  reverificationRequestedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -722,6 +785,9 @@ export type DonorMinOrderByAggregateInput = {
   verifiedAt?: Prisma.SortOrder
   verifiedBy?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
+  reverificationRequested?: Prisma.SortOrder
+  reverificationMessage?: Prisma.SortOrder
+  reverificationRequestedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -828,6 +894,9 @@ export type DonorCreateWithoutUserInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bloodPacks?: Prisma.BloodPackCreateNestedManyWithoutDonorInput
@@ -852,6 +921,9 @@ export type DonorUncheckedCreateWithoutUserInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bloodPacks?: Prisma.BloodPackUncheckedCreateNestedManyWithoutDonorInput
@@ -892,6 +964,9 @@ export type DonorUpdateWithoutUserInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bloodPacks?: Prisma.BloodPackUpdateManyWithoutDonorNestedInput
@@ -916,6 +991,9 @@ export type DonorUncheckedUpdateWithoutUserInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bloodPacks?: Prisma.BloodPackUncheckedUpdateManyWithoutDonorNestedInput
@@ -940,6 +1018,9 @@ export type DonorCreateWithoutBloodPacksInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDonorInput
@@ -965,6 +1046,9 @@ export type DonorUncheckedCreateWithoutBloodPacksInput = {
   verifiedAt?: Date | string | null
   verifiedBy?: string | null
   rejectionReason?: string | null
+  reverificationRequested?: boolean
+  reverificationMessage?: string | null
+  reverificationRequestedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1004,6 +1088,9 @@ export type DonorUpdateWithoutBloodPacksInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDonorNestedInput
@@ -1029,6 +1116,9 @@ export type DonorUncheckedUpdateWithoutBloodPacksInput = {
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verifiedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequested?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reverificationMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reverificationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1084,6 +1174,9 @@ export type DonorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   verifiedAt?: boolean
   verifiedBy?: boolean
   rejectionReason?: boolean
+  reverificationRequested?: boolean
+  reverificationMessage?: boolean
+  reverificationRequestedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1111,6 +1204,9 @@ export type DonorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   verifiedAt?: boolean
   verifiedBy?: boolean
   rejectionReason?: boolean
+  reverificationRequested?: boolean
+  reverificationMessage?: boolean
+  reverificationRequestedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1136,6 +1232,9 @@ export type DonorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   verifiedAt?: boolean
   verifiedBy?: boolean
   rejectionReason?: boolean
+  reverificationRequested?: boolean
+  reverificationMessage?: boolean
+  reverificationRequestedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1161,11 +1260,14 @@ export type DonorSelectScalar = {
   verifiedAt?: boolean
   verifiedBy?: boolean
   rejectionReason?: boolean
+  reverificationRequested?: boolean
+  reverificationMessage?: boolean
+  reverificationRequestedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DonorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "bloodGroup" | "donorType" | "location" | "city" | "address" | "dateOfBirth" | "latitude" | "longitude" | "lastDonationDate" | "totalDonations" | "isEligible" | "weight" | "medicalNotes" | "verificationStatus" | "verifiedAt" | "verifiedBy" | "rejectionReason" | "createdAt" | "updatedAt", ExtArgs["result"]["donor"]>
+export type DonorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "bloodGroup" | "donorType" | "location" | "city" | "address" | "dateOfBirth" | "latitude" | "longitude" | "lastDonationDate" | "totalDonations" | "isEligible" | "weight" | "medicalNotes" | "verificationStatus" | "verifiedAt" | "verifiedBy" | "rejectionReason" | "reverificationRequested" | "reverificationMessage" | "reverificationRequestedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["donor"]>
 export type DonorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bloodPacks?: boolean | Prisma.Donor$bloodPacksArgs<ExtArgs>
@@ -1204,6 +1306,9 @@ export type $DonorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     verifiedAt: Date | null
     verifiedBy: string | null
     rejectionReason: string | null
+    reverificationRequested: boolean
+    reverificationMessage: string | null
+    reverificationRequestedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["donor"]>
@@ -1650,6 +1755,9 @@ export interface DonorFieldRefs {
   readonly verifiedAt: Prisma.FieldRef<"Donor", 'DateTime'>
   readonly verifiedBy: Prisma.FieldRef<"Donor", 'String'>
   readonly rejectionReason: Prisma.FieldRef<"Donor", 'String'>
+  readonly reverificationRequested: Prisma.FieldRef<"Donor", 'Boolean'>
+  readonly reverificationMessage: Prisma.FieldRef<"Donor", 'String'>
+  readonly reverificationRequestedAt: Prisma.FieldRef<"Donor", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Donor", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Donor", 'DateTime'>
 }

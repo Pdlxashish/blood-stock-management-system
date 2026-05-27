@@ -112,7 +112,7 @@ export function InteractiveLocationMap({
     }
   };
 
-  // Reverse geocoding function using Nominatim API only
+  // Reverse geocoding function using backend API (no CORS issues)
   const reverseGeocode = async (lat: number, lng: number) => {
     if (!onAddressUpdate) return;
     
@@ -120,19 +120,15 @@ export function InteractiveLocationMap({
     try {
       console.log(`🔄 Starting reverse geocoding for: ${lat}, ${lng}`);
       
-      // Use Nominatim reverse geocoding API
+      // Use backend API to avoid CORS issues
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
+      const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&countrycodes=np&zoom=16&accept-language=en`,
+        `${apiUrl}/api/geocoding/reverse?lat=${lat}&lon=${lng}`,
         {
           method: 'GET',
-          headers: {
-            'User-Agent': 'BloodBankManagementSystem/1.0',
-            'Accept': 'application/json',
-            'Accept-Language': 'en',
-          },
           signal: controller.signal,
         }
       );
@@ -144,11 +140,11 @@ export function InteractiveLocationMap({
       }
 
       const data = await response.json();
-      console.log('🔄 Nominatim reverse geocoding result:', data);
+      console.log('🔄 Reverse geocoding result:', data);
       
-      if (data && data.address) {
+      if (data.success && data.result && data.result.address) {
         // Extract address components
-        const addr = data.address;
+        const addr = data.result.address;
         
         // Build address string from components with better prioritization
         const addressParts = [];
@@ -175,8 +171,8 @@ export function InteractiveLocationMap({
         let cityName = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
         
         // If no specific city found, try to extract from display_name
-        if (!cityName && data.display_name) {
-          const parts = data.display_name.split(',').map((p: string) => p.trim());
+        if (!cityName && data.result.display_name) {
+          const parts = data.result.display_name.split(',').map((p: string) => p.trim());
           
           // Look for known Nepal cities in the display name
           const nepalCities = [
@@ -241,7 +237,7 @@ export function InteractiveLocationMap({
       if (error.name === 'AbortError') {
         console.log('⏰ Reverse geocoding timed out - using fallback');
       } else if (error.message?.includes('Failed to fetch')) {
-        console.log('🌐 Network/CORS error during reverse geocoding - using fallback');
+        console.log('🌐 Network error during reverse geocoding - using fallback');
       } else if (error.message?.includes('HTTP')) {
         console.log('🔧 API error during reverse geocoding - using fallback:', error.message);
       } else {

@@ -45,9 +45,41 @@ export const errorHandler = (
 
   // Handle Prisma errors
   if (err.name === 'PrismaClientKnownRequestError') {
+    const prismaError = err as any;
+    console.error('❌ Prisma Error:', {
+      code: prismaError.code,
+      meta: prismaError.meta,
+      message: prismaError.message,
+    });
+    
+    // Provide more specific error messages based on Prisma error codes
+    let message = 'Database operation failed';
+    
+    switch (prismaError.code) {
+      case 'P2002':
+        message = `Duplicate entry: ${prismaError.meta?.target?.join(', ') || 'unique constraint violated'}`;
+        break;
+      case 'P2003':
+        message = 'Foreign key constraint failed';
+        break;
+      case 'P2025':
+        message = 'Record not found';
+        break;
+      default:
+        message = process.env.NODE_ENV === 'development' 
+          ? `Database error: ${prismaError.message}` 
+          : 'Database operation failed';
+    }
+    
     res.status(400).json({
       success: false,
-      message: 'Database operation failed',
+      message,
+      ...(process.env.NODE_ENV === 'development' && { 
+        details: {
+          code: prismaError.code,
+          meta: prismaError.meta,
+        }
+      }),
     });
     return;
   }

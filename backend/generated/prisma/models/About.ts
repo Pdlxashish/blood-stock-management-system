@@ -40,6 +40,8 @@ export type AboutMinAggregateOutputType = {
   contactPhone: string | null
   contactEmail: string | null
   contactEmergency: string | null
+  whatsappNumber: string | null
+  whatsappEnabled: boolean | null
   whatWeDo: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,8 @@ export type AboutMaxAggregateOutputType = {
   contactPhone: string | null
   contactEmail: string | null
   contactEmergency: string | null
+  whatsappNumber: string | null
+  whatsappEnabled: boolean | null
   whatWeDo: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -82,6 +86,8 @@ export type AboutCountAggregateOutputType = {
   contactPhone: number
   contactEmail: number
   contactEmergency: number
+  whatsappNumber: number
+  whatsappEnabled: number
   whatWeDo: number
   createdAt: number
   updatedAt: number
@@ -105,6 +111,8 @@ export type AboutMinAggregateInputType = {
   contactPhone?: true
   contactEmail?: true
   contactEmergency?: true
+  whatsappNumber?: true
+  whatsappEnabled?: true
   whatWeDo?: true
   createdAt?: true
   updatedAt?: true
@@ -126,6 +134,8 @@ export type AboutMaxAggregateInputType = {
   contactPhone?: true
   contactEmail?: true
   contactEmergency?: true
+  whatsappNumber?: true
+  whatsappEnabled?: true
   whatWeDo?: true
   createdAt?: true
   updatedAt?: true
@@ -147,6 +157,8 @@ export type AboutCountAggregateInputType = {
   contactPhone?: true
   contactEmail?: true
   contactEmergency?: true
+  whatsappNumber?: true
+  whatsappEnabled?: true
   whatWeDo?: true
   createdAt?: true
   updatedAt?: true
@@ -241,6 +253,8 @@ export type AboutGroupByOutputType = {
   contactPhone: string
   contactEmail: string
   contactEmergency: string
+  whatsappNumber: string | null
+  whatsappEnabled: boolean
   whatWeDo: string
   createdAt: Date
   updatedAt: Date
@@ -283,6 +297,8 @@ export type AboutWhereInput = {
   contactPhone?: Prisma.StringFilter<"About"> | string
   contactEmail?: Prisma.StringFilter<"About"> | string
   contactEmergency?: Prisma.StringFilter<"About"> | string
+  whatsappNumber?: Prisma.StringNullableFilter<"About"> | string | null
+  whatsappEnabled?: Prisma.BoolFilter<"About"> | boolean
   whatWeDo?: Prisma.StringFilter<"About"> | string
   createdAt?: Prisma.DateTimeFilter<"About"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"About"> | Date | string
@@ -304,6 +320,8 @@ export type AboutOrderByWithRelationInput = {
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
   contactEmergency?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappEnabled?: Prisma.SortOrder
   whatWeDo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -328,6 +346,8 @@ export type AboutWhereUniqueInput = Prisma.AtLeast<{
   contactPhone?: Prisma.StringFilter<"About"> | string
   contactEmail?: Prisma.StringFilter<"About"> | string
   contactEmergency?: Prisma.StringFilter<"About"> | string
+  whatsappNumber?: Prisma.StringNullableFilter<"About"> | string | null
+  whatsappEnabled?: Prisma.BoolFilter<"About"> | boolean
   whatWeDo?: Prisma.StringFilter<"About"> | string
   createdAt?: Prisma.DateTimeFilter<"About"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"About"> | Date | string
@@ -349,6 +369,8 @@ export type AboutOrderByWithAggregationInput = {
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
   contactEmergency?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappEnabled?: Prisma.SortOrder
   whatWeDo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -376,6 +398,8 @@ export type AboutScalarWhereWithAggregatesInput = {
   contactPhone?: Prisma.StringWithAggregatesFilter<"About"> | string
   contactEmail?: Prisma.StringWithAggregatesFilter<"About"> | string
   contactEmergency?: Prisma.StringWithAggregatesFilter<"About"> | string
+  whatsappNumber?: Prisma.StringNullableWithAggregatesFilter<"About"> | string | null
+  whatsappEnabled?: Prisma.BoolWithAggregatesFilter<"About"> | boolean
   whatWeDo?: Prisma.StringWithAggregatesFilter<"About"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"About"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"About"> | Date | string
@@ -397,6 +421,8 @@ export type AboutCreateInput = {
   contactPhone?: string
   contactEmail?: string
   contactEmergency?: string
+  whatsappNumber?: string | null
+  whatsappEnabled?: boolean
   whatWeDo?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -418,6 +444,8 @@ export type AboutUncheckedCreateInput = {
   contactPhone?: string
   contactEmail?: string
   contactEmergency?: string
+  whatsappNumber?: string | null
+  whatsappEnabled?: boolean
   whatWeDo?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -439,6 +467,8 @@ export type AboutUpdateInput = {
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmergency?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   whatWeDo?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -460,6 +490,8 @@ export type AboutUncheckedUpdateInput = {
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmergency?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   whatWeDo?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -481,6 +513,8 @@ export type AboutCreateManyInput = {
   contactPhone?: string
   contactEmail?: string
   contactEmergency?: string
+  whatsappNumber?: string | null
+  whatsappEnabled?: boolean
   whatWeDo?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -502,6 +536,8 @@ export type AboutUpdateManyMutationInput = {
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmergency?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   whatWeDo?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -523,6 +559,8 @@ export type AboutUncheckedUpdateManyInput = {
   contactPhone?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmail?: Prisma.StringFieldUpdateOperationsInput | string
   contactEmergency?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   whatWeDo?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -544,6 +582,8 @@ export type AboutCountOrderByAggregateInput = {
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
   contactEmergency?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  whatsappEnabled?: Prisma.SortOrder
   whatWeDo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -565,6 +605,8 @@ export type AboutMaxOrderByAggregateInput = {
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
   contactEmergency?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  whatsappEnabled?: Prisma.SortOrder
   whatWeDo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -586,6 +628,8 @@ export type AboutMinOrderByAggregateInput = {
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
   contactEmergency?: Prisma.SortOrder
+  whatsappNumber?: Prisma.SortOrder
+  whatsappEnabled?: Prisma.SortOrder
   whatWeDo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -609,6 +653,8 @@ export type AboutSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   contactPhone?: boolean
   contactEmail?: boolean
   contactEmergency?: boolean
+  whatsappNumber?: boolean
+  whatsappEnabled?: boolean
   whatWeDo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -630,6 +676,8 @@ export type AboutSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   contactPhone?: boolean
   contactEmail?: boolean
   contactEmergency?: boolean
+  whatsappNumber?: boolean
+  whatsappEnabled?: boolean
   whatWeDo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -651,6 +699,8 @@ export type AboutSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   contactPhone?: boolean
   contactEmail?: boolean
   contactEmergency?: boolean
+  whatsappNumber?: boolean
+  whatsappEnabled?: boolean
   whatWeDo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -672,12 +722,14 @@ export type AboutSelectScalar = {
   contactPhone?: boolean
   contactEmail?: boolean
   contactEmergency?: boolean
+  whatsappNumber?: boolean
+  whatsappEnabled?: boolean
   whatWeDo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AboutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroTitle" | "heroSubtitle" | "missionTitle" | "missionContent" | "visionTitle" | "visionContent" | "values" | "storyTitle" | "storyContent" | "stats" | "contactAddress" | "contactPhone" | "contactEmail" | "contactEmergency" | "whatWeDo" | "createdAt" | "updatedAt", ExtArgs["result"]["about"]>
+export type AboutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "heroTitle" | "heroSubtitle" | "missionTitle" | "missionContent" | "visionTitle" | "visionContent" | "values" | "storyTitle" | "storyContent" | "stats" | "contactAddress" | "contactPhone" | "contactEmail" | "contactEmergency" | "whatsappNumber" | "whatsappEnabled" | "whatWeDo" | "createdAt" | "updatedAt", ExtArgs["result"]["about"]>
 
 export type $AboutPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "About"
@@ -698,6 +750,8 @@ export type $AboutPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     contactPhone: string
     contactEmail: string
     contactEmergency: string
+    whatsappNumber: string | null
+    whatsappEnabled: boolean
     whatWeDo: string
     createdAt: Date
     updatedAt: Date
@@ -1139,6 +1193,8 @@ export interface AboutFieldRefs {
   readonly contactPhone: Prisma.FieldRef<"About", 'String'>
   readonly contactEmail: Prisma.FieldRef<"About", 'String'>
   readonly contactEmergency: Prisma.FieldRef<"About", 'String'>
+  readonly whatsappNumber: Prisma.FieldRef<"About", 'String'>
+  readonly whatsappEnabled: Prisma.FieldRef<"About", 'Boolean'>
   readonly whatWeDo: Prisma.FieldRef<"About", 'String'>
   readonly createdAt: Prisma.FieldRef<"About", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"About", 'DateTime'>

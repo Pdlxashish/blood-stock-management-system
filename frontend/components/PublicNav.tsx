@@ -93,50 +93,101 @@ export default function PublicNav() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
-                    <div className="w-7 h-7 bg-red-800 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold">
-                        {user.name.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="w-8 h-8 bg-red-800 rounded-full overflow-hidden flex items-center justify-center border-2 border-red-200">
+                      {user.profilePicture ? (
+                        <img 
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}${user.profilePicture}`}
+                          alt={user.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-sm font-semibold">
+                          {user.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                     </div>
                     <span className="hidden sm:inline">{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Role: <span className="font-medium">{user.role}</span>
-                    </p>
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-80 bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 text-white p-0"
+                >
+                  {/* Profile Header */}
+                  <div className="p-6 text-center border-b border-gray-700">
+                    <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-lg border-4 border-gray-700">
+                      {user.profilePicture ? (
+                        <img 
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}${user.profilePicture}`}
+                          alt={user.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-3xl font-bold">
+                          {user.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-1">{user.name}</h3>
+                    <p className="text-sm text-gray-400 truncate">{user.email}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 bg-gray-800 border-gray-600 text-white hover:bg-gray-700 hover:text-white"
+                      onClick={() => router.push('/profile')}
+                    >
+                      View Profile
+                    </Button>
                   </div>
-                  <DropdownMenuSeparator />
-                  {user.role === 'ADMIN' || user.role === 'STAFF' ? (
-                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Admin Dashboard
+
+                  {/* Menu Items */}
+                  <div className="p-2">
+                    {user.role === 'DONOR' && (
+                      <DropdownMenuItem 
+                        onClick={() => router.push('/home')}
+                        className="text-white hover:bg-gray-700 focus:bg-gray-700 focus:text-white cursor-pointer py-3 px-4 rounded-md"
+                      >
+                        <LayoutDashboard className="mr-3 h-5 w-5" />
+                        <span className="text-base">Donor Home</span>
+                      </DropdownMenuItem>
+                    )}
+                    {(user.role === 'ADMIN' || user.role === 'STAFF') && (
+                      <DropdownMenuItem 
+                        onClick={() => router.push('/dashboard')}
+                        className="text-white hover:bg-gray-700 focus:bg-gray-700 focus:text-white cursor-pointer py-3 px-4 rounded-md"
+                      >
+                        <LayoutDashboard className="mr-3 h-5 w-5" />
+                        <span className="text-base">Admin Dashboard</span>
+                      </DropdownMenuItem>
+                    )}
+                  </div>
+
+                  <DropdownMenuSeparator className="bg-gray-700 my-2" />
+
+                  {/* Logout */}
+                  <div className="p-2">
+                    <DropdownMenuItem 
+                      onClick={handleLogout}
+                      className="text-red-400 hover:bg-red-900/20 focus:bg-red-900/20 focus:text-red-400 cursor-pointer py-3 px-4 rounded-md"
+                    >
+                      <LogOut className="mr-3 h-5 w-5" />
+                      <span className="text-base font-medium">Logout</span>
                     </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem onClick={() => router.push('/home')}>
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Donor Home
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => router.push('/profile')}>
-                    <User className="mr-2 h-4 w-4" />
-                    View Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={handleLogout}
-                    className="text-red-800 focus:text-red-800"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <>
+                <Link href="/need-a-blood">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium"
+                  >
+                    <Droplets className="h-4 w-4 mr-1.5" />
+                    Need Blood?
+                  </Button>
+                </Link>
                 <Link href="/login">
                   <Button variant="ghost" size="sm">
                     Login

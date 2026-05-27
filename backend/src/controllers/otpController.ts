@@ -133,15 +133,38 @@ export const verifyOTP = async (req: Request, res: Response) => {
 
   console.log('✅ [VERIFY OTP] OTP verified successfully for:', user.email);
 
-  // Mark email as verified and clear OTP
+  // Check if user has a donor profile
+  const donor = await prisma.donor.findUnique({
+    where: { userId: user.id },
+  });
+
+  // Determine if this is a walk-in donor (created during blood collection)
+  // Walk-in donors have emailVerified: false and verificationStatus: PENDING
+  const isWalkInDonor = donor && donor.verificationStatus === 'PENDING' && !user.emailVerified;
+
+  // Mark email as verified
   await prisma.user.update({
     where: { id: user.id },
     data: {
       emailVerified: true,
+      isVerified: isWalkInDonor ? true : user.isVerified, // Auto-verify walk-in donors
       otp: null,
       otpExpiry: null,
     },
   });
+
+  // If walk-in donor, also update donor verification status
+  if (isWalkInDonor && donor) {
+    await prisma.donor.update({
+      where: { id: donor.id },
+      data: {
+        verificationStatus: 'VERIFIED',
+        verifiedAt: new Date(),
+        verifiedBy: 'self-verified-via-email', // Mark as self-verified
+      },
+    });
+    console.log('✅ [VERIFY OTP] Walk-in donor auto-verified:', donor.id);
+  }
 
   // Send welcome email
   try {
@@ -153,10 +176,13 @@ export const verifyOTP = async (req: Request, res: Response) => {
 
   res.json({
     status: 'success',
-    message: 'Email verified successfully! You can now log in.',
+    message: isWalkInDonor 
+      ? 'Email verified successfully! Your donor profile is now active.' 
+      : 'Email verified successfully! You can now log in.',
     data: {
       email: user.email,
       emailVerified: true,
+      isVerified: isWalkInDonor ? true : user.isVerified,
     },
   });
 };

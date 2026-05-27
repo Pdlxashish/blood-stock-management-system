@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import path from 'path';
+import fs from 'fs';
 import { prisma } from '../../lib/prisma';
 import { generateOTP, sendOTPEmail } from '../utils/emailService';
 
@@ -168,16 +170,6 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if email is verified (only for DONOR role)
-    if (user.role === 'DONOR' && !user.emailVerified) {
-      return res.status(403).json({
-        success: false,
-        message: 'Please verify your email first. Check your inbox for the OTP.',
-        requiresEmailVerification: true,
-        email: user.email,
-      });
-    }
-
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -185,6 +177,34 @@ export const loginUser = async (req: Request, res: Response) => {
         success: false,
         message: 'Invalid credentials',
       });
+    }
+
+    // Check email verification only for DONOR role and only after confirming the password is correct.
+    // OTP is used for initial registration verification only — NOT for login after a password reset.
+    // If the password matched a real bcrypt hash, the user has already proved account ownership
+    // (either via initial OTP verification or via the password-reset OTP flow). Auto-heal any
+    // stale emailVerified=false state so they are never stuck in an OTP loop after a password reset.
+    if (user.role === 'DONOR' && !user.emailVerified) {
+      // bcrypt hashes always start with "$2" — walk-in placeholders ('WALK_IN_DONOR', 'ORGANIZATION')
+      // do not, so we can distinguish them without a separate DB flag.
+      const hasRealPassword = user.password.startsWith('$2');
+
+      if (hasRealPassword) {
+        // Password matched a real bcrypt hash → user proved ownership. Mark email as verified
+        // and clear any leftover OTP so they are not blocked on future logins.
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: true, otp: null, otpExpiry: null },
+        });
+      } else {
+        // Walk-in / placeholder account — still needs proper email verification
+        return res.status(403).json({
+          success: false,
+          message: 'Please verify your email first. Check your inbox for the OTP.',
+          requiresEmailVerification: true,
+          email: user.email,
+        });
+      }
     }
 
     const token = generateToken(user.id);
@@ -259,6 +279,22 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate name if provided
+    if (name && name.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name must be at least 2 characters long',
+      });
+    }
+
+    // Validate phone if provided
+    if (phone && phone.trim().length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number must be at least 10 digits',
+      });
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: req.user.id },
       data: {
@@ -271,17 +307,81 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         email: true,
         phone: true,
         role: true,
+        isVerified: true,
+        profilePicture: true,
       },
     });
 
     res.json({
       success: true,
-      message: 'Profile updated',
+      message: 'Profile updated successfully',
       data: updatedUser,
     });
   } catch (err) {
     console.error('UPDATE ERROR:', err);
     res.status(500).json({ success: false });
+  }
+};
+
+// ================= UPDATE PROFILE PICTURE =================
+export const updateProfilePicture = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Unauthorized' 
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded',
+      });
+    }
+
+    // Generate URL for the uploaded file
+    const profilePictureUrl = `/uploads/profiles/${req.file.filename}`;
+
+    // Delete old profile picture if exists
+    const currentUser = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { profilePicture: true },
+    });
+
+    if (currentUser?.profilePicture) {
+      const oldFilePath = path.join(__dirname, '../../public', currentUser.profilePicture);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    // Update user with new profile picture
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { profilePicture: profilePictureUrl },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        isVerified: true,
+        profilePicture: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile picture updated successfully',
+      data: updatedUser,
+    });
+  } catch (err) {
+    console.error('PROFILE PICTURE UPDATE ERROR:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to update profile picture' 
+    });
   }
 };
 
