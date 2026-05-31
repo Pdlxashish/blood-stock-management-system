@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { MessageCircle, Phone, X } from 'lucide-react';
+import { MessageCircle, Phone, X, AlertCircle } from 'lucide-react';
+import { validateName, validateMobileNumber, validateEmail } from '@/lib/validators';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const URGENCY_LEVELS = [
@@ -30,6 +31,8 @@ export default function NeedABloodPage() {
     neededBy: '',
     notes: '',
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
   // Fetch WhatsApp contact info
   useEffect(() => {
@@ -67,16 +70,109 @@ export default function NeedABloodPage() {
     return cleaned;
   };
 
+  // Validate individual field
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case 'name':
+        const nameValidation = validateName(value);
+        return nameValidation.isValid ? null : nameValidation.message || null;
+      
+      case 'phone':
+        const phoneValidation = validateMobileNumber(value);
+        return phoneValidation.isValid ? null : phoneValidation.message || null;
+      
+      case 'email':
+        if (!value) return null; // Email is optional
+        const emailValidation = validateEmail(value);
+        return emailValidation.isValid ? null : emailValidation.message || null;
+      
+      case 'address':
+        if (!value.trim()) return 'Address is required';
+        if (value.trim().length < 10) return 'Address must be at least 10 characters';
+        return null;
+      
+      case 'bloodGroup':
+        if (!value) return 'Blood group is required';
+        return null;
+      
+      case 'unitsNeeded':
+        const units = parseInt(value);
+        if (isNaN(units) || units < 1) return 'At least 1 unit is required';
+        if (units > 2) return 'Maximum 2 units allowed per request';
+        return null;
+      
+      case 'neededBy':
+        if (!value) return 'Date and time is required';
+        const selectedDate = new Date(value);
+        const now = new Date();
+        if (selectedDate < now) return 'Date must be in the future';
+        return null;
+      
+      default:
+        return null;
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Validate field if it has been touched
+    if (touchedFields[name]) {
+      const error = validateField(name, value);
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: error || '',
+      }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    setTouchedFields(prev => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    const error = validateField(name, value);
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: error || '',
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate all fields
+    const errors: Record<string, string> = {};
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key as keyof typeof formData]);
+      if (error) {
+        errors[key] = error;
+      }
+    });
+
+    // Mark all fields as touched
+    const allTouched: Record<string, boolean> = {};
+    Object.keys(formData).forEach(key => {
+      allTouched[key] = true;
+    });
+    setTouchedFields(allTouched);
+
+    // If there are errors, show them and don't submit
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError('Please fix all validation errors before submitting');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -122,9 +218,18 @@ export default function NeedABloodPage() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                onBlur={handleBlur}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  fieldErrors.name && touchedFields.name ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter your full name"
               />
+              {fieldErrors.name && touchedFields.name && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{fieldErrors.name}</span>
+                </div>
+              )}
             </div>
 
             {/* Phone */}
@@ -139,9 +244,18 @@ export default function NeedABloodPage() {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your phone number"
+                onBlur={handleBlur}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  fieldErrors.phone && touchedFields.phone ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter 10-digit phone number"
               />
+              {fieldErrors.phone && touchedFields.phone && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{fieldErrors.phone}</span>
+                </div>
+              )}
             </div>
 
             {/* Email */}
@@ -155,9 +269,18 @@ export default function NeedABloodPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                onBlur={handleBlur}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  fieldErrors.email && touchedFields.email ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter your email"
               />
+              {fieldErrors.email && touchedFields.email && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{fieldErrors.email}</span>
+                </div>
+              )}
             </div>
 
             {/* Address */}
@@ -172,9 +295,18 @@ export default function NeedABloodPage() {
                 rows={3}
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                onBlur={handleBlur}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  fieldErrors.address && touchedFields.address ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter your complete address"
               />
+              {fieldErrors.address && touchedFields.address && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{fieldErrors.address}</span>
+                </div>
+              )}
             </div>
 
             {/* Blood Group and Units */}
@@ -189,7 +321,10 @@ export default function NeedABloodPage() {
                   required
                   value={formData.bloodGroup}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  onBlur={handleBlur}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                    fieldErrors.bloodGroup && touchedFields.bloodGroup ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 >
                   <option value="">Select blood group</option>
                   {BLOOD_GROUPS.map((group) => (
@@ -198,6 +333,12 @@ export default function NeedABloodPage() {
                     </option>
                   ))}
                 </select>
+                {fieldErrors.bloodGroup && touchedFields.bloodGroup && (
+                  <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{fieldErrors.bloodGroup}</span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -213,9 +354,18 @@ export default function NeedABloodPage() {
                   max="2"
                   value={formData.unitsNeeded}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  onBlur={handleBlur}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                    fieldErrors.unitsNeeded && touchedFields.unitsNeeded ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
                 <p className="text-xs text-gray-500 mt-1">Maximum 2 units per request</p>
+                {fieldErrors.unitsNeeded && touchedFields.unitsNeeded && (
+                  <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{fieldErrors.unitsNeeded}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -260,8 +410,17 @@ export default function NeedABloodPage() {
                 required
                 value={formData.neededBy}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                onBlur={handleBlur}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                  fieldErrors.neededBy && touchedFields.neededBy ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.neededBy && touchedFields.neededBy && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{fieldErrors.neededBy}</span>
+                </div>
+              )}
             </div>
 
             {/* Notes */}
