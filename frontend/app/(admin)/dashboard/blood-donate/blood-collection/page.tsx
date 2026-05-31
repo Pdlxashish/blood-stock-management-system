@@ -14,6 +14,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -32,6 +40,7 @@ import {
   AlertCircle,
   Calendar,
   Weight,
+  XCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSearchDonors, useRecordBloodCollection } from '@/lib/queries/bloodCollection';
@@ -57,6 +66,16 @@ export default function BloodCollectionPage() {
   const [selectedDonorUserId, setSelectedDonorUserId] = useState<string>('');
   const [showLocationMap, setShowLocationMap] = useState(false);
   const [manualCoordinates, setManualCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  
+  // Eligibility error dialog state
+  const [showEligibilityDialog, setShowEligibilityDialog] = useState(false);
+  const [eligibilityError, setEligibilityError] = useState<{
+    message: string;
+    lastDonationDate?: string;
+    nextEligibleDate?: string;
+    daysRemaining?: number;
+    cooldownPeriod?: number;
+  } | null>(null);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -296,7 +315,18 @@ export default function BloodCollectionPage() {
           switch (status) {
             case 400:
               // Check if it's a donation eligibility error
-              if (data?.message && data.message.includes('not eligible to donate')) {
+              if (data?.errorType === 'DONOR_NOT_ELIGIBLE' && data?.eligibilityData) {
+                // Show eligibility dialog instead of toast
+                setEligibilityError({
+                  message: data.message,
+                  lastDonationDate: data.eligibilityData.lastDonationDate,
+                  nextEligibleDate: data.eligibilityData.nextEligibleDate,
+                  daysRemaining: data.eligibilityData.daysRemaining,
+                  cooldownPeriod: data.eligibilityData.cooldownPeriod,
+                });
+                setShowEligibilityDialog(true);
+                return; // Don't show toast, dialog will handle it
+              } else if (data?.message && data.message.includes('not eligible to donate')) {
                 errorMessage = '🚫 Donor Not Eligible';
                 errorDescription = data.message;
               } else {
@@ -1055,6 +1085,123 @@ export default function BloodCollectionPage() {
         </form>
         </div>
       )}
+      
+      {/* Donor Not Eligible Dialog */}
+      <Dialog open={showEligibilityDialog} onOpenChange={setShowEligibilityDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <XCircle className="h-7 w-7 text-red-600" />
+              </div>
+              <DialogTitle className="text-2xl font-bold text-red-800">
+                Donor Not Eligible
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-base text-slate-700 mt-4">
+              {eligibilityError?.message || 'This donor is not eligible to donate at this time.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Eligibility Details Card */}
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-5 space-y-4">
+              <h3 className="font-semibold text-red-900 text-lg flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                Donation Eligibility Information
+              </h3>
+              
+              <div className="space-y-3">
+                {/* Last Donation Date */}
+                {eligibilityError?.lastDonationDate && (
+                  <div className="flex items-start gap-3 bg-white rounded-md p-3 border border-red-200">
+                    <Calendar className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-700">Last Donation Date</p>
+                      <p className="text-lg font-bold text-red-800">
+                        {new Date(eligibilityError.lastDonationDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Next Eligible Date */}
+                {eligibilityError?.nextEligibleDate && (
+                  <div className="flex items-start gap-3 bg-white rounded-md p-3 border border-red-200">
+                    <Calendar className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-700">Next Eligible Date</p>
+                      <p className="text-lg font-bold text-green-700">
+                        {new Date(eligibilityError.nextEligibleDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Days Remaining */}
+                {eligibilityError?.daysRemaining !== undefined && (
+                  <div className="flex items-center justify-center gap-3 bg-gradient-to-r from-red-100 to-orange-100 rounded-md p-4 border-2 border-red-300">
+                    <AlertCircle className="h-8 w-8 text-red-700" />
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-slate-700">Days Remaining</p>
+                      <p className="text-3xl font-bold text-red-800">
+                        {eligibilityError.daysRemaining}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-1">
+                        day{eligibilityError.daysRemaining !== 1 ? 's' : ''} until eligible
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Cooldown Period Info */}
+                {eligibilityError?.cooldownPeriod && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <p className="text-sm text-blue-900">
+                      <span className="font-semibold">ℹ️ Safety Requirement:</span> Blood donors must wait{' '}
+                      <span className="font-bold">{eligibilityError.cooldownPeriod} days</span> between donations 
+                      to ensure their health and safety.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Warning Message */}
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-yellow-800">Important</p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    The system will not allow this donation to proceed. Please wait until the donor is eligible 
+                    or select a different donor.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              onClick={() => setShowEligibilityDialog(false)}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

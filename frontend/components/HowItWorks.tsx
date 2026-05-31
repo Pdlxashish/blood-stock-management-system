@@ -262,7 +262,7 @@ const MobileMockup = () => {
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                   <span className="text-xs font-semibold text-green-800">Donation Complete</span>
                 </div>
-                <p className="text-xs text-green-700">Lives saved: 3 • Impact score: +150</p>
+                <p className="text-xs text-green-700">Impact score: +150</p>
               </motion.div>
             </motion.div>
           )}

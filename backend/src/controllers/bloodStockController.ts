@@ -19,7 +19,7 @@ export const getBloodStock = async (req: Request, res: Response) => {
   // Get total count for pagination
   const total = await prisma.bloodPack.count({ where });
 
-  // Get paginated blood packs
+  // Get paginated blood packs (LIFO - Last In, First Out)
   const bloodPacks = await prisma.bloodPack.findMany({
     where,
     include: {
@@ -34,7 +34,7 @@ export const getBloodStock = async (req: Request, res: Response) => {
         },
       },
     },
-    orderBy: { collectionDate: "desc" },
+    orderBy: { createdAt: "desc" }, // LIFO: Most recently added packs first
     skip,
     take: limitNum,
   });

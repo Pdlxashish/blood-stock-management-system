@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin, Users, Clock, AlertCircle } from "lucide-react";
+import { CalendarDays, MapPin, Users, Clock, AlertCircle, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
 import PublicFooter from "@/components/PublicFooter";
@@ -55,6 +55,14 @@ export default function PublicEventsPage() {
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-gray-900">Blood Donation Events</h1>
             <p className="text-gray-600 mt-2">Join a blood donation drive near you</p>
+            <div className="mt-4">
+              <Link href="/events/gallery">
+                <Button variant="outline" className="gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  View Event Gallery
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {events.length === 0 ? (
@@ -67,20 +75,32 @@ export default function PublicEventsPage() {
                 const statusBadge = getStatusBadge(event.status);
                 const eventDate = new Date(event.eventDate);
                 const participantCount = event.participants?.length || 0;
-                const bannerUrl = event.banner ? `${process.env.NEXT_PUBLIC_API_URL}${event.banner}` : null;
+                const bannerUrl = event.banner 
+                  ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${event.banner}` 
+                  : '/placeholder-event.jpg';
 
                 return (
                   <Link key={event.id} href={`/events/${event.id}`} className="block">
                     <Card className="border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer h-full">
-                      {bannerUrl && (
-                        <div className="w-full h-48 overflow-hidden rounded-t-lg">
-                          <img 
-                            src={bannerUrl} 
-                            alt={event.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
+                      <div className="w-full h-48 overflow-hidden rounded-t-lg relative group">
+                        <img 
+                          src={bannerUrl} 
+                          alt={event.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-event.jpg';
+                          }}
+                        />
+                        {event.poster && (
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-purple-600 text-white text-xs">
+                              <ImageIcon className="h-3 w-3 mr-1" />
+                              Has Poster
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
                       <CardContent className="p-5">
                         <Badge variant="outline" className={`text-[10px] mb-3 ${statusBadge.color}`}>
                           {statusBadge.label}

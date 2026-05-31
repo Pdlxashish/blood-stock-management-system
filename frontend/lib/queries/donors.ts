@@ -197,3 +197,39 @@ export function useDeleteDonor() {
     },
   });
 }
+
+// Call donor
+export function useCallDonor() {
+  return useMutation({
+    mutationFn: async ({ donorId, calledBy }: { donorId: string; calledBy?: string }) => {
+      const response = await axiosInstance.post(
+        API_PATHS.DONOR.CALL(donorId),
+        { calledBy }
+      );
+      return response.data;
+    },
+  });
+}
+
+// Notify donor
+export function useNotifyDonor() {
+  return useMutation({
+    mutationFn: async ({ 
+      donorId, 
+      title, 
+      message, 
+      notifiedBy 
+    }: { 
+      donorId: string; 
+      title?: string; 
+      message?: string; 
+      notifiedBy?: string;
+    }) => {
+      const response = await axiosInstance.post(
+        API_PATHS.DONOR.NOTIFY(donorId),
+        { title, message, notifiedBy }
+      );
+      return response.data;
+    },
+  });
+}

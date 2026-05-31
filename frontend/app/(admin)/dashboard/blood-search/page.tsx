@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Home } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useDonors } from "@/lib/queries/donors";
+import { useDonors, useCallDonor, useNotifyDonor } from "@/lib/queries/donors";
 import { useBloodSearchStore, useToast } from "@/lib/store";
 import { getCityCoordinates, BLOOD_GROUPS, LOW_STOCK_GROUPS, DEFAULT_MAP_CENTER, haversineKm } from "@/lib/data";
 import {
@@ -56,6 +56,10 @@ export default function BloodSearchPage() {
 
   // Fetch donors using TanStack Query
   const { data: donors = [], isLoading, error } = useDonors();
+
+  // Mutations for call and notify
+  const callDonorMutation = useCallDonor();
+  const notifyDonorMutation = useNotifyDonor();
 
   // Show error toast if fetch fails
   useEffect(() => {
@@ -189,12 +193,42 @@ export default function BloodSearchPage() {
     }
   };
 
-  const handleCall = (name: string) => {
-    toast(`Calling ${name}…`, "info");
+  const handleCall = async (donorId: string, phoneNumber: string, donorName: string) => {
+    try {
+      const result = await callDonorMutation.mutateAsync({ donorId });
+      
+      // Copy phone number to clipboard
+      if (phoneNumber && navigator.clipboard) {
+        await navigator.clipboard.writeText(phoneNumber);
+        toast(`📋 Phone number copied: ${phoneNumber}`, 'success');
+      } else {
+        // Fallback: show phone number in toast
+        toast(`📞 Call ${donorName} at: ${phoneNumber}`, 'info');
+      }
+      
+      // Try to open phone dialer (works on mobile devices)
+      if (phoneNumber && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = `tel:${phoneNumber}`;
+      }
+    } catch (error: any) {
+      console.error('Failed to call donor:', error);
+      toast(error.response?.data?.message || 'Failed to get phone number', 'error');
+    }
   };
 
-  const handleNotify = (name: string) => {
-    toast(`Notification sent to ${name}`);
+  const handleNotify = async (donorId: string, donorName: string) => {
+    try {
+      const result = await notifyDonorMutation.mutateAsync({
+        donorId,
+        title: 'Blood Donation Request',
+        message: `You have been contacted regarding a blood donation request. Your contribution can save lives!`,
+      });
+      
+      toast(result.message || `Notification sent to ${donorName}`, 'success');
+    } catch (error: any) {
+      console.error('Failed to notify donor:', error);
+      toast(error.response?.data?.message || 'Failed to send notification', 'error');
+    }
   };
 
   return (

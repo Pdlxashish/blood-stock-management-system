@@ -3,6 +3,8 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../middleware/errorHandler";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { sendClaimAccountOTPEmail } from "../utils/emailService";
+import { sendWhatsAppOTP, isEmail, isValidPhoneNumber } from "../utils/whatsappService";
 
 // Generate 6-digit verification code
 const generateVerificationCode = (): string => {
@@ -21,6 +23,14 @@ export const requestAccountClaim = async (req: Request, res: Response) => {
 
   if (!phoneOrEmail) {
     throw new AppError("Phone or email is required", 400);
+  }
+
+  // Determine if input is email or phone
+  const isEmailInput = isEmail(phoneOrEmail);
+  const isPhoneInput = !isEmailInput && isValidPhoneNumber(phoneOrEmail);
+
+  if (!isEmailInput && !isPhoneInput) {
+    throw new AppError("Please provide a valid email or phone number", 400);
   }
 
   // Find user by phone or email
@@ -56,24 +66,52 @@ export const requestAccountClaim = async (req: Request, res: Response) => {
     userId: user.id,
   });
 
-  // TODO: Send SMS/Email with verification code
-  // For now, return it in response (REMOVE IN PRODUCTION)
-  console.log(`Verification code for ${phoneOrEmail}: ${code}`);
+  console.log(`📱 Verification code for ${phoneOrEmail}: ${code}`);
 
-  res.json({
-    status: "success",
-    message: "Verification code sent successfully",
-    data: {
-      sentTo: user.phone || user.email,
-      // REMOVE IN PRODUCTION:
-      verificationCode: code, // Only for testing
-    },
-  });
+  // Send OTP via email or WhatsApp based on input type
+  try {
+    if (isEmailInput) {
+      // Send via email
+      console.log('📧 Sending OTP via email...');
+      await sendClaimAccountOTPEmail(user.email, code, user.name);
+      
+      res.json({
+        status: "success",
+        message: "Verification code sent to your email",
+        data: {
+          sentTo: user.email,
+          method: "email",
+        },
+      });
+    } else {
+      // Send via WhatsApp
+      console.log('📱 Sending OTP via WhatsApp...');
+      const whatsappResult = await sendWhatsAppOTP(user.phone, code, user.name);
+      
+      if (whatsappResult.success) {
+        res.json({
+          status: "success",
+          message: "Verification code sent to your WhatsApp",
+          data: {
+            sentTo: user.phone,
+            method: "whatsapp",
+            whatsappLink: whatsappResult.whatsappLink,
+          },
+        });
+      } else {
+        throw new AppError("Failed to send WhatsApp message. Please try with email instead.", 500);
+      }
+    }
+  } catch (error: any) {
+    console.error('❌ Error sending verification code:', error);
+    throw new AppError(`Failed to send verification code: ${error.message}`, 500);
+  }
 };
 
 /**
  * Step 2: Verify code and set password
  * User provides code + new password
+ * Auto-approves donor (skips admin verification)
  */
 export const verifyAndClaimAccount = async (req: Request, res: Response) => {
   const { phoneOrEmail, verificationCode, password, name } = req.body;
@@ -115,12 +153,13 @@ export const verifyAndClaimAccount = async (req: Request, res: Response) => {
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Update user account
+  // Update user account AND auto-approve donor
   const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: {
       password: hashedPassword,
       isVerified: true,
+      emailVerified: true, // Mark email as verified since they verified via OTP
       ...(name && { name }), // Update name if provided
     },
     select: {
@@ -136,10 +175,28 @@ export const verifyAndClaimAccount = async (req: Request, res: Response) => {
           bloodGroup: true,
           totalDonations: true,
           lastDonationDate: true,
+          verificationStatus: true,
         },
       },
     },
   });
+
+  // Auto-approve donor (skip admin verification for claimed accounts)
+  if (user.donor && user.donor.verificationStatus !== 'VERIFIED') {
+    console.log(`✅ Auto-approving donor ${user.donor.id} (claimed account)`);
+    
+    await prisma.donor.update({
+      where: { id: user.donor.id },
+      data: {
+        verificationStatus: 'VERIFIED',
+        verifiedAt: new Date(),
+        verifiedBy: 'SYSTEM_AUTO_APPROVED', // Mark as system auto-approved
+        rejectionReason: null, // Clear any previous rejection reason
+      },
+    });
+
+    console.log(`✅ Donor ${user.name} auto-approved via claim account process`);
+  }
 
   // Remove verification code
   verificationCodes.delete(phoneOrEmail);
@@ -153,9 +210,15 @@ export const verifyAndClaimAccount = async (req: Request, res: Response) => {
 
   res.json({
     status: "success",
-    message: "Account claimed successfully! You can now login.",
+    message: "Account claimed successfully! You can now login. Your donor profile has been automatically verified.",
     data: {
-      user: updatedUser,
+      user: {
+        ...updatedUser,
+        donor: updatedUser.donor ? {
+          ...updatedUser.donor,
+          verificationStatus: 'VERIFIED', // Return updated status
+        } : null,
+      },
       token,
     },
   });
@@ -227,6 +290,10 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
     throw new AppError("Phone or email is required", 400);
   }
 
+  // Determine if input is email or phone
+  const isEmailInput = isEmail(phoneOrEmail);
+  const isPhoneInput = !isEmailInput && isValidPhoneNumber(phoneOrEmail);
+
   // Find user
   const user = await prisma.user.findFirst({
     where: {
@@ -255,13 +322,38 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
     userId: user.id,
   });
 
-  console.log(`New verification code for ${phoneOrEmail}: ${code}`);
+  console.log(`📱 New verification code for ${phoneOrEmail}: ${code}`);
 
-  res.json({
-    status: "success",
-    message: "Verification code resent",
-    data: {
-      verificationCode: code, // REMOVE IN PRODUCTION
-    },
-  });
+  // Send OTP via email or WhatsApp
+  try {
+    if (isEmailInput) {
+      // Send via email
+      console.log('📧 Resending OTP via email...');
+      await sendClaimAccountOTPEmail(user.email, code, user.name);
+      
+      res.json({
+        status: "success",
+        message: "Verification code resent to your email",
+        data: {
+          method: "email",
+        },
+      });
+    } else {
+      // Send via WhatsApp
+      console.log('📱 Resending OTP via WhatsApp...');
+      const whatsappResult = await sendWhatsAppOTP(user.phone, code, user.name);
+      
+      res.json({
+        status: "success",
+        message: "Verification code resent to your WhatsApp",
+        data: {
+          method: "whatsapp",
+          whatsappLink: whatsappResult.whatsappLink,
+        },
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ Error resending verification code:', error);
+    throw new AppError(`Failed to resend verification code: ${error.message}`, 500);
+  }
 };

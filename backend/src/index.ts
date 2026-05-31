@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
+import passport from './config/passport';
 import { prisma } from '../lib/prisma';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -23,6 +24,7 @@ import notificationRoutes from './routes/notificationRoutes';
 import passwordResetRoutes from './routes/passwordResetRoutes';
 import bloodRequestRoutes from './routes/bloodRequestRoutes';
 import geocodingRoutes from './routes/geocodingRoutes';
+import emailVerificationRoutes from './routes/emailVerificationRoutes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
@@ -42,6 +44,9 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize Passport
+app.use(passport.initialize());
 
 // Serve static files (profile pictures)
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
@@ -72,6 +77,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
 app.use('/api/blood-requests', bloodRequestRoutes);
 app.use('/api/geocoding', geocodingRoutes);
+app.use('/api/email', emailVerificationRoutes);
 
 // Serve static files for uploaded images
 app.use('/uploads', express.static('uploads'));

@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { getUser, isAuthenticated } from '@/lib/auth';
 import type { User } from '@/lib/auth';
 import PublicNav from '@/components/PublicNav';
@@ -14,11 +14,13 @@ import NotificationBell from '@/components/NotificationBell';
 import DonationCountdown from '@/components/DonationCountdown';
 import { useDonorByUserId } from '@/lib/queries/donors';
 import { useDonationsByUser } from '@/lib/queries/donations';
-import { useEvents } from '@/lib/queries/events';
+import { useEvents, useUserEventParticipations, useUserEventVolunteers } from '@/lib/queries/events';
 import { useCertificatesByUser } from '@/lib/queries/certificates';
 import type { Certificate } from '@/lib/queries/certificates';
 import { CertificatePreview } from '@/lib/certificate-preview';
 import { useHasMounted } from '@/hooks/useHasMounted';
+import axiosInstance from '@/lib/axiosInstance';
+import { API_PATHS } from '@/lib/apiPaths';
 import {
   Heart,
   Calendar,
@@ -33,6 +35,7 @@ import Link from 'next/link';
 
 export default function DonorHomePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
@@ -43,6 +46,8 @@ export default function DonorHomePage() {
   const { data: donations, isLoading: donationsLoading, error: donationsError } = useDonationsByUser(user?.id || '');
   const { data: events } = useEvents({ status: 'UPCOMING', limit: 3 });
   const { data: certificates = [] } = useCertificatesByUser(user?.id || '');
+  const { data: eventParticipations = [] } = useUserEventParticipations(user?.id || '');
+  const { data: eventVolunteers = [] } = useUserEventVolunteers(user?.id || '');
 
   // Debug logging
   console.log('🔍 Debug Info:', {
@@ -56,8 +61,7 @@ export default function DonorHomePage() {
   // Calculate stats from actual data
   const donorStats = {
     totalDonations: donations?.length || 0,
-    livesSaved: (donations?.length || 0) * 3, // Each donation saves ~3 lives
-    eventsAttended: 0, // TODO: Calculate from event participation
+    eventsAttended: eventParticipations.length + eventVolunteers.length, // Count both participations and volunteer records
     certificates: certificates.length,
     lastDonationDate: donations?.[0]?.donationDate,
     nextEligibleDate: donations?.[0]?.donationDate 
@@ -66,27 +70,67 @@ export default function DonorHomePage() {
   };
 
   useEffect(() => {
+    // Handle token from Google OAuth redirect FIRST
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
+
+    if (token) {
+      console.log('[HOME] Received OAuth token, storing and fetching user data');
+      // Store token
+      localStorage.setItem('token', token);
+      
+      // Fetch user data with the new token
+      axiosInstance.get(API_PATHS.AUTH.GET_PROFILE, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(response => {
+          const userData = response.data.data;
+          console.log('[HOME] User data fetched:', userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+          setLoading(false);
+          
+          // Remove token from URL
+          window.history.replaceState({}, '', '/home');
+        })
+        .catch(err => {
+          console.error('[HOME] Failed to fetch user data:', err);
+          router.push('/login?error=auth_failed');
+        });
+      return;
+    }
+
+    if (error === 'auth_failed') {
+      console.error('[HOME] OAuth authentication failed');
+      router.push('/login?error=auth_failed');
+      return;
+    }
+
+    // Normal authentication check (no OAuth token in URL)
     if (!isAuthenticated()) {
+      console.log('[HOME] Not authenticated, redirecting to login');
       router.push('/login');
       return;
     }
 
     const userData = getUser();
     if (!userData) {
+      console.log('[HOME] No user data found, redirecting to login');
       router.push('/login');
       return;
     }
 
     // Only donors should access this page
     if (userData.role !== 'DONOR') {
-      // Non-donors should not access this page - redirect to login
+      console.log('[HOME] User is not a donor, redirecting to login');
       router.push('/login');
       return;
     }
 
+    console.log('[HOME] User authenticated:', userData.email);
     setUser(userData);
     setLoading(false);
-  }, [router]);
+  }, [router, searchParams]);
 
   if (!hasMounted || loading || donationsLoading) {
     return (
@@ -151,22 +195,6 @@ export default function DonorHomePage() {
                   </div>
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center shadow-md">
                     <Droplet className="h-7 w-7 text-red-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Lives Saved</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">
-                      {donorStats.livesSaved}
-                    </p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center shadow-md">
-                    <Heart className="h-7 w-7 text-green-600" />
                   </div>
                 </div>
               </CardContent>
@@ -507,7 +535,7 @@ export default function DonorHomePage() {
                       {donorStats.totalDonations && donorStats.totalDonations > 0 ? (
                         <div className="space-y-2">
                           <p className="text-sm text-red-100">
-                            You've made {donorStats.totalDonations} donation{donorStats.totalDonations > 1 ? 's' : ''} and potentially saved {donorStats.livesSaved} lives!
+                            You've made {donorStats.totalDonations} donation{donorStats.totalDonations > 1 ? 's' : ''}!
                           </p>
                           <p className="text-sm text-red-100">
                             Thank you for being a hero! 🦸‍♂️
@@ -537,6 +565,9 @@ export default function DonorHomePage() {
               <Award className="h-5 w-5 text-yellow-600" />
               {selectedCert?.type === 'DONATION' ? 'Donation Certificate' : 'Volunteer Certificate'}
             </DialogTitle>
+            <DialogDescription>
+              Preview and download your certificate
+            </DialogDescription>
           </DialogHeader>
           <div className="print:hidden mb-4 flex gap-2">
             <Button

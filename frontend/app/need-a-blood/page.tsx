@@ -202,18 +202,20 @@ export default function NeedABloodPage() {
 
               <div>
                 <label htmlFor="unitsNeeded" className="block text-sm font-medium text-gray-700 mb-2">
-                  Units Needed
+                  Units Needed <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   id="unitsNeeded"
                   name="unitsNeeded"
+                  required
                   min="1"
-                  max="10"
+                  max="2"
                   value={formData.unitsNeeded}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
+                <p className="text-xs text-gray-500 mt-1">Maximum 2 units per request</p>
               </div>
             </div>
 
@@ -324,15 +326,7 @@ export default function NeedABloodPage() {
           </ul>
         </div>
 
-        {/* Debug Info - Remove after testing */}
-        <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs">
-          <p><strong>Debug Info:</strong></p>
-          <p>WhatsApp Enabled: {whatsappEnabled ? '✅ Yes' : '❌ No'}</p>
-          <p>WhatsApp Number (Raw): {whatsappNumber || 'Not set'}</p>
-          <p>WhatsApp Number (Cleaned): {whatsappNumber ? getCleanWhatsAppNumber(whatsappNumber) : 'Not set'}</p>
-          <p>WhatsApp URL: {whatsappNumber ? `https://wa.me/${getCleanWhatsAppNumber(whatsappNumber)}` : 'Not available'}</p>
-          <p>Button should be visible: {whatsappEnabled && whatsappNumber ? '✅ Yes' : '❌ No'}</p>
-        </div>
+
       </div>
 
       {/* Floating WhatsApp Contact Button */}

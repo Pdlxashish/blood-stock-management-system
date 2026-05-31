@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   phone: string | null
   role: $Enums.Role | null
   isVerified: boolean | null
+  googleId: string | null
   emailVerified: boolean | null
   otp: string | null
   otpExpiry: Date | null
@@ -48,6 +49,7 @@ export type UserMaxAggregateOutputType = {
   phone: string | null
   role: $Enums.Role | null
   isVerified: boolean | null
+  googleId: string | null
   emailVerified: boolean | null
   otp: string | null
   otpExpiry: Date | null
@@ -64,6 +66,7 @@ export type UserCountAggregateOutputType = {
   phone: number
   role: number
   isVerified: number
+  googleId: number
   emailVerified: number
   otp: number
   otpExpiry: number
@@ -82,6 +85,7 @@ export type UserMinAggregateInputType = {
   phone?: true
   role?: true
   isVerified?: true
+  googleId?: true
   emailVerified?: true
   otp?: true
   otpExpiry?: true
@@ -98,6 +102,7 @@ export type UserMaxAggregateInputType = {
   phone?: true
   role?: true
   isVerified?: true
+  googleId?: true
   emailVerified?: true
   otp?: true
   otpExpiry?: true
@@ -114,6 +119,7 @@ export type UserCountAggregateInputType = {
   phone?: true
   role?: true
   isVerified?: true
+  googleId?: true
   emailVerified?: true
   otp?: true
   otpExpiry?: true
@@ -203,6 +209,7 @@ export type UserGroupByOutputType = {
   phone: string
   role: $Enums.Role
   isVerified: boolean
+  googleId: string | null
   emailVerified: boolean
   otp: string | null
   otpExpiry: Date | null
@@ -240,6 +247,7 @@ export type UserWhereInput = {
   phone?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   isVerified?: Prisma.BoolFilter<"User"> | boolean
+  googleId?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   otp?: Prisma.StringNullableFilter<"User"> | string | null
   otpExpiry?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -263,6 +271,7 @@ export type UserOrderByWithRelationInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrderInput | Prisma.SortOrder
   otpExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -281,6 +290,7 @@ export type UserOrderByWithRelationInput = {
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  googleId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
@@ -302,7 +312,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   eventVolunteers?: Prisma.EventVolunteerListRelationFilter
   bloodIssues?: Prisma.BloodIssueListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
-}, "id" | "email">
+}, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -312,6 +322,7 @@ export type UserOrderByWithAggregationInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrderInput | Prisma.SortOrder
   otpExpiry?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -334,6 +345,7 @@ export type UserScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   isVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   otp?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   otpExpiry?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -350,6 +362,7 @@ export type UserCreateInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -373,6 +386,7 @@ export type UserUncheckedCreateInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -396,6 +410,7 @@ export type UserUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -419,6 +434,7 @@ export type UserUncheckedUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -442,6 +458,7 @@ export type UserCreateManyInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -458,6 +475,7 @@ export type UserUpdateManyMutationInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -474,6 +492,7 @@ export type UserUncheckedUpdateManyInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -490,6 +509,7 @@ export type UserCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
@@ -506,6 +526,7 @@ export type UserMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
@@ -522,6 +543,7 @@ export type UserMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   otp?: Prisma.SortOrder
   otpExpiry?: Prisma.SortOrder
@@ -674,6 +696,7 @@ export type UserCreateWithoutDonorInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -696,6 +719,7 @@ export type UserUncheckedCreateWithoutDonorInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -734,6 +758,7 @@ export type UserUpdateWithoutDonorInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -756,6 +781,7 @@ export type UserUncheckedUpdateWithoutDonorInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -778,6 +804,7 @@ export type UserCreateWithoutDonationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -800,6 +827,7 @@ export type UserUncheckedCreateWithoutDonationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -838,6 +866,7 @@ export type UserUpdateWithoutDonationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -860,6 +889,7 @@ export type UserUncheckedUpdateWithoutDonationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -882,6 +912,7 @@ export type UserCreateWithoutBloodIssuesInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -904,6 +935,7 @@ export type UserUncheckedCreateWithoutBloodIssuesInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -942,6 +974,7 @@ export type UserUpdateWithoutBloodIssuesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -964,6 +997,7 @@ export type UserUncheckedUpdateWithoutBloodIssuesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -986,6 +1020,7 @@ export type UserCreateWithoutEventParticipationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1008,6 +1043,7 @@ export type UserUncheckedCreateWithoutEventParticipationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1046,6 +1082,7 @@ export type UserUpdateWithoutEventParticipationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1068,6 +1105,7 @@ export type UserUncheckedUpdateWithoutEventParticipationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1090,6 +1128,7 @@ export type UserCreateWithoutEventVolunteersInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1112,6 +1151,7 @@ export type UserUncheckedCreateWithoutEventVolunteersInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1150,6 +1190,7 @@ export type UserUpdateWithoutEventVolunteersInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1172,6 +1213,7 @@ export type UserUncheckedUpdateWithoutEventVolunteersInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1194,6 +1236,7 @@ export type UserCreateWithoutCertificatesInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1216,6 +1259,7 @@ export type UserUncheckedCreateWithoutCertificatesInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1254,6 +1298,7 @@ export type UserUpdateWithoutCertificatesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1276,6 +1321,7 @@ export type UserUncheckedUpdateWithoutCertificatesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1298,6 +1344,7 @@ export type UserCreateWithoutNotificationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1320,6 +1367,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   phone: string
   role?: $Enums.Role
   isVerified?: boolean
+  googleId?: string | null
   emailVerified?: boolean
   otp?: string | null
   otpExpiry?: Date | string | null
@@ -1358,6 +1406,7 @@ export type UserUpdateWithoutNotificationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1380,6 +1429,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   otp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   otpExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1478,6 +1528,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phone?: boolean
   role?: boolean
   isVerified?: boolean
+  googleId?: boolean
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
@@ -1502,6 +1553,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   role?: boolean
   isVerified?: boolean
+  googleId?: boolean
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
@@ -1518,6 +1570,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   role?: boolean
   isVerified?: boolean
+  googleId?: boolean
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
@@ -1534,6 +1587,7 @@ export type UserSelectScalar = {
   phone?: boolean
   role?: boolean
   isVerified?: boolean
+  googleId?: boolean
   emailVerified?: boolean
   otp?: boolean
   otpExpiry?: boolean
@@ -1542,7 +1596,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "isVerified" | "emailVerified" | "otp" | "otpExpiry" | "profilePicture" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "phone" | "role" | "isVerified" | "googleId" | "emailVerified" | "otp" | "otpExpiry" | "profilePicture" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   donor?: boolean | Prisma.User$donorArgs<ExtArgs>
   donations?: boolean | Prisma.User$donationsArgs<ExtArgs>
@@ -1575,6 +1629,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phone: string
     role: $Enums.Role
     isVerified: boolean
+    googleId: string | null
     emailVerified: boolean
     otp: string | null
     otpExpiry: Date | null
@@ -2018,6 +2073,7 @@ export interface UserFieldRefs {
   readonly phone: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly isVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly otp: Prisma.FieldRef<"User", 'String'>
   readonly otpExpiry: Prisma.FieldRef<"User", 'DateTime'>

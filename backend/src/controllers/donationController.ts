@@ -323,10 +323,24 @@ export const recordBloodCollection = async (req: Request, res: Response) => {
           const msRemaining = nextEligibleDate.getTime() - now.getTime();
           const daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
           console.log(`❌ Cooldown failed: ${daysRemaining} days remaining`);
-          throw new AppError(
-            `This donor is not eligible to donate yet. They can donate again in ${daysRemaining} day(s) on ${nextEligibleDate.toLocaleDateString()}.`,
-            400
-          );
+          
+          // Create detailed error response for frontend
+          const errorResponse = {
+            message: `This donor is not eligible to donate yet. They can donate again in ${daysRemaining} day(s) on ${nextEligibleDate.toLocaleDateString()}.`,
+            errorType: 'DONOR_NOT_ELIGIBLE',
+            eligibilityData: {
+              isEligible: false,
+              lastDonationDate: donor.lastDonationDate.toISOString(),
+              nextEligibleDate: nextEligibleDate.toISOString(),
+              daysRemaining: daysRemaining,
+              cooldownPeriod: 90,
+            }
+          };
+          
+          const error = new AppError(errorResponse.message, 400);
+          (error as any).eligibilityData = errorResponse.eligibilityData;
+          (error as any).errorType = errorResponse.errorType;
+          throw error;
         }
         console.log('✅ Cooldown check passed');
       }

@@ -546,25 +546,27 @@ export default function DashboardPage() {
                 });
                 
                 return (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 text-purple-700">
-                      <Calendar className="w-5 h-5" />
+                  <Link key={i} href="/dashboard/events">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 text-purple-700">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{event.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{event.location} • {eventDate}</p>
+                      </div>
+                      <Badge 
+                        className={`text-xs font-medium ${
+                          event.status === 'UPCOMING' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          event.status === 'RUNNING' ? 'bg-green-50 text-green-700 border-green-200' :
+                          event.status === 'COMPLETED' ? 'bg-gray-100 text-gray-700 border-gray-200' :
+                          'bg-red-50 text-red-700 border-red-200'
+                        }`}
+                      >
+                        {event.status}
+                      </Badge>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{event.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{event.location} • {eventDate}</p>
-                    </div>
-                    <Badge 
-                      className={`text-xs font-medium ${
-                        event.status === 'UPCOMING' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                        event.status === 'RUNNING' ? 'bg-green-50 text-green-700 border-green-200' :
-                        event.status === 'COMPLETED' ? 'bg-gray-100 text-gray-700 border-gray-200' :
-                        'bg-red-50 text-red-700 border-red-200'
-                      }`}
-                    >
-                      {event.status}
-                    </Badge>
-                  </div>
+                  </Link>
                 );
               })}
               {stats.recentEvents.length === 0 && (

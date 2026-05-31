@@ -1,18 +1,25 @@
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, User, Mail, Lock, Phone, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Heart, User, Mail, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
 import PublicFooter from "@/components/PublicFooter";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
+import PasswordInput from "@/components/PasswordInput";
+import PhoneInput from "@/components/PhoneInput";
+import axiosInstance from "@/lib/axiosInstance";
+import { API_PATHS } from "@/lib/apiPaths";
+import { validateRegistrationData } from "@/lib/validators";
 
 export default function BecomeDonorPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -23,7 +30,52 @@ export default function BecomeDonorPage() {
   const [error, setError] = useState("");
   const [showClaimPrompt, setShowClaimPrompt] = useState(false);
   const [existingAccount, setExistingAccount] = useState<any>(null);
-  const [showPassword, setShowPassword] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Handle token from Google OAuth redirect
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
+
+    if (token) {
+      // Store token and redirect to donor form
+      localStorage.setItem('token', token);
+      
+      // Fetch user data
+      axiosInstance.get(API_PATHS.AUTH.GET_PROFILE, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(response => {
+          const user = response.data.data;
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          // Redirect based on role and donor profile status
+          if (user.role === 'DONOR') {
+            if (!user.hasDonorProfile) {
+              // No donor profile - redirect to donor form
+              window.location.href = '/donor-form';
+            } else {
+              // Has donor profile - check verification status
+              if (user.donorStatus === 'PENDING') {
+                window.location.href = '/verification-request';
+              } else if (user.donorStatus === 'APPROVED' || user.donorStatus === 'VERIFIED') {
+                window.location.href = '/home';
+              } else {
+                window.location.href = '/home';
+              }
+            }
+          } else {
+            window.location.href = '/dashboard';
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch user data:', err);
+          setError('Authentication failed. Please try again.');
+        });
+    } else if (error === 'auth_failed') {
+      setError('Google authentication failed. Please try again.');
+    }
+  }, [searchParams, router]);
 
   // Check if account exists when phone/email changes
   const checkExistingAccount = async (phone: string, email: string) => {
@@ -63,6 +115,17 @@ export default function BecomeDonorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear previous errors
+    setError("");
+    setValidationErrors({});
+
+    // Validate form data
+    const validation = validateRegistrationData(form);
+    if (!validation.isValid) {
+      setError(validation.message || 'Please check all fields');
+      return;
+    }
+    
     // Check for existing account before submitting
     if (showClaimPrompt && existingAccount && !existingAccount.isVerified) {
       setError('You already have an account! Please use "Claim Account" below.');
@@ -70,7 +133,6 @@ export default function BecomeDonorPage() {
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`, {
@@ -169,6 +231,21 @@ export default function BecomeDonorPage() {
                 </div>
               )}
 
+              {/* Google Sign Up Button */}
+              <div className="mb-6">
+                <GoogleAuthButton mode="signup" />
+              </div>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or register with email</span>
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -204,57 +281,31 @@ export default function BecomeDonorPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-700">Phone Number *</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={form.phone}
-                        onChange={(e) => {
-                          setForm({ ...form, phone: e.target.value });
-                          // Check for existing account on blur
-                        }}
-                        onBlur={() => checkExistingAccount(form.phone, form.email)}
-                        placeholder="+1 234 567 8900"
-                        className="pl-10 h-11"
-                        required
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
+                  <PhoneInput
+                    id="phone"
+                    name="phone"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    onBlur={() => checkExistingAccount(form.phone, form.email)}
+                    label="Phone Number"
+                    placeholder="9876543210"
+                    required
+                    disabled={loading}
+                    showValidation={true}
+                  />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700">Password *</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={form.password}
-                        onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        placeholder="••••••••"
-                        className="pl-10 pr-10 h-11"
-                        required
-                        minLength={6}
-                        disabled={loading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        disabled={loading}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-500">Minimum 6 characters</p>
-                  </div>
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    label="Password"
+                    placeholder="••••••••"
+                    required
+                    disabled={loading}
+                    showStrengthIndicator={true}
+                    showRequirements={true}
+                  />
                 </div>
 
                 {/* Info Box */}

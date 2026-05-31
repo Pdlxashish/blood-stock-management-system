@@ -101,7 +101,7 @@ export function DonorProfileHeader({
             <div className="flex-shrink-0 text-right">
               <div className="mb-1 text-sm text-white/80">Total Donations</div>
               <div className="text-4xl font-bold text-white">{donor.totalDonations}</div>
-              <div className="text-xs text-white/80">{donor.totalDonations * 3} lives impacted</div>
+              <div className="text-xs text-white/80">Lifetime donations</div>
             </div>
           </div>
         </div>

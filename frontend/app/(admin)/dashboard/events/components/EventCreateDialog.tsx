@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,9 +20,10 @@ interface EventCreateDialogProps {
   form: EventFormState;
   onFormChange: (nextForm: EventFormState) => void;
   onCreate: () => void;
+  isCreating?: boolean;
 }
 
-export function EventCreateDialog({ open, onOpenChange, form, onFormChange, onCreate }: EventCreateDialogProps) {
+export function EventCreateDialog({ open, onOpenChange, form, onFormChange, onCreate, isCreating = false }: EventCreateDialogProps) {
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [posterPreview, setPosterPreview] = useState<string | null>(null);
@@ -61,6 +62,9 @@ export function EventCreateDialog({ open, onOpenChange, form, onFormChange, onCr
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Event</DialogTitle>
+          <DialogDescription>
+            Fill in the details to create a new blood donation event
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -244,8 +248,13 @@ export function EventCreateDialog({ open, onOpenChange, form, onFormChange, onCr
             />
           </div>
 
-          <Button type="button" onClick={onCreate} className="w-full bg-red-800 text-white hover:bg-red-900">
-            Create Event
+          <Button 
+            type="button" 
+            onClick={onCreate} 
+            disabled={isCreating}
+            className="w-full bg-red-800 text-white hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCreating ? "Creating Event..." : "Create Event"}
           </Button>
         </div>
       </DialogContent>

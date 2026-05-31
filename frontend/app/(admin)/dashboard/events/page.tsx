@@ -47,6 +47,11 @@ export default function EventsPage() {
       return;
     }
 
+    // Prevent multiple submissions
+    if (createEvent.isPending) {
+      return;
+    }
+
     try {
       // Create event first
       const createdEvent = await createEvent.mutateAsync({
@@ -60,28 +65,35 @@ export default function EventsPage() {
         longitude: newEvent.longitude,
       });
 
+      const eventId = createdEvent.data?.id;
+      
+      if (!eventId) {
+        throw new Error("Failed to get event ID from response");
+      }
+
       // Upload banner if provided
-      if (newEvent.banner && createdEvent.id) {
+      if (newEvent.banner) {
         const bannerFormData = new FormData();
         bannerFormData.append('banner', newEvent.banner);
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/events/${createdEvent.id}/banner`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/events/${eventId}/banner`,
           bannerFormData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
       }
 
       // Upload poster if provided
-      if (newEvent.poster && createdEvent.id) {
+      if (newEvent.poster) {
         const posterFormData = new FormData();
         posterFormData.append('poster', newEvent.poster);
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/events/${createdEvent.id}/poster`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/events/${eventId}/poster`,
           posterFormData,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
       }
 
+      // Close dialog and reset form
       setDialogOpen(false);
       setNewEvent({
         title: "",
@@ -95,6 +107,7 @@ export default function EventsPage() {
         banner: null,
         poster: null,
       });
+      
       toast.success("Event created successfully");
     } catch (caughtError: unknown) {
       const message = axios.isAxiosError(caughtError)
@@ -124,6 +137,7 @@ export default function EventsPage() {
         form={newEvent}
         onFormChange={setNewEvent}
         onCreate={handleCreate}
+        isCreating={createEvent.isPending}
       />
     </div>
   );

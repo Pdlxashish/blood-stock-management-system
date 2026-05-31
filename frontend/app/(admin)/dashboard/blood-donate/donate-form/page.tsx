@@ -3,13 +3,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
-import { ArrowLeft, AlertCircle, CheckCircle2, Package, Home } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle2, Package, Home, XCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast as sonnerToast } from "sonner";
 import { useBloodPacks } from "@/lib/queries/bloodStock";
 import { useCreateBloodIssue } from "@/lib/queries/bloodIssues";
@@ -48,6 +49,8 @@ export default function DonateFormPage() {
   const [selectedPacks, setSelectedPacks] = useState<Set<string>>(new Set());
   const [bloodRequest, setBloodRequest] = useState<any>(null);
   const [loadingRequest, setLoadingRequest] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   // Fetch blood packs using TanStack Query
   const { data: allBloodPacks = [], isLoading: packsLoading } = useBloodPacks();
@@ -65,11 +68,16 @@ export default function DonateFormPage() {
           const request = response.data.data;
           setBloodRequest(request);
           
+          // Convert blood group from database format to display format
+          const displayBloodGroup = request.bloodGroup
+            .replace('_POSITIVE', '+')
+            .replace('_NEGATIVE', '-');
+          
           // Pre-fill form with blood request data
           setFormData({
             donationType: 'person',
             name: request.name,
-            bloodGroup: request.bloodGroup,
+            bloodGroup: displayBloodGroup,
             units: request.unitsNeeded.toString(),
             contact: request.phone,
             notes: `Blood Request - Address: ${request.address}${request.notes ? '\nNotes: ' + request.notes : ''}`,
@@ -128,16 +136,26 @@ export default function DonateFormPage() {
 
   // Auto-select packs when blood group or units change
   useEffect(() => {
-    if (formData.bloodGroup) {
+    if (formData.bloodGroup && availablePacks.length > 0) {
       const unitsNeeded = parseInt(formData.units) || 0;
       
       // Auto-select first N packs based on units needed (FIFO)
       const autoSelected = new Set(availablePacks.slice(0, unitsNeeded).map(p => p.id));
-      setSelectedPacks(autoSelected);
-    } else {
-      setSelectedPacks(new Set());
+      
+      // Only update if the selection actually changed
+      setSelectedPacks(prev => {
+        const prevArray = Array.from(prev).sort();
+        const newArray = Array.from(autoSelected).sort();
+        if (JSON.stringify(prevArray) === JSON.stringify(newArray)) {
+          return prev; // No change, return previous state
+        }
+        return autoSelected;
+      });
+    } else if (!formData.bloodGroup) {
+      setSelectedPacks(prev => prev.size === 0 ? prev : new Set());
     }
-  }, [formData.bloodGroup, formData.units, availablePacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.bloodGroup, formData.units, availablePacks.length]);
 
   const handlePackToggle = (packId: string) => {
     const newSelected = new Set(selectedPacks);
@@ -154,6 +172,40 @@ export default function DonateFormPage() {
       }
     }
     setSelectedPacks(newSelected);
+  };
+
+  const handleReject = async () => {
+    if (!rejectionReason.trim()) {
+      sonnerToast.error('Please provide a rejection reason');
+      return;
+    }
+
+    if (!requestId || !bloodRequest) {
+      sonnerToast.error('No blood request to reject');
+      return;
+    }
+
+    try {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/${requestId}/reject`,
+        {
+          reviewedBy: 'admin',
+          rejectionReason: rejectionReason.trim(),
+        }
+      );
+
+      // Send rejection email notification
+      if (bloodRequest.email) {
+        sonnerToast.success(`Blood request rejected. Notification email sent to ${bloodRequest.email}`);
+      } else {
+        sonnerToast.success('Blood request rejected successfully');
+      }
+
+      // Navigate back to blood donate page
+      router.push('/dashboard/blood-donate');
+    } catch (error: any) {
+      sonnerToast.error(error.response?.data?.message || 'Failed to reject blood request');
+    }
   };
 
   const handleSubmit = async () => {
@@ -185,7 +237,7 @@ export default function DonateFormPage() {
         bloodPackIds: Array.from(selectedPacks),
       });
 
-      // If this was from a blood request, mark it as fulfilled
+      // If this was from a blood request, mark it as fulfilled and send email
       if (requestId && bloodRequest) {
         try {
           await axios.patch(
@@ -195,13 +247,21 @@ export default function DonateFormPage() {
               bloodIssueId: issueResult.data.id,
             }
           );
+          
+          // Send acceptance email if email is provided
+          if (bloodRequest.email) {
+            sonnerToast.success(`Blood issued successfully! Confirmation email sent to ${bloodRequest.email}`);
+          } else {
+            sonnerToast.success(`Successfully issued ${unitsNeeded} unit(s) of ${formData.bloodGroup} blood to ${formData.name}`);
+          }
         } catch (error) {
           console.error('Failed to mark blood request as fulfilled:', error);
+          sonnerToast.success(`Successfully issued ${unitsNeeded} unit(s) of ${formData.bloodGroup} blood to ${formData.name}`);
           // Don't fail the whole operation if this fails
         }
+      } else {
+        sonnerToast.success(`Successfully issued ${unitsNeeded} unit(s) of ${formData.bloodGroup} blood to ${formData.name}`);
       }
-
-      sonnerToast.success(`Successfully issued ${unitsNeeded} unit(s) of ${formData.bloodGroup} blood to ${formData.name}`);
       
       // Navigate back to blood donate page
       router.push('/dashboard/blood-donate');
@@ -266,18 +326,32 @@ export default function DonateFormPage() {
           
           {/* Blood Request Badge */}
           {bloodRequest && (
-            <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-900">
-                  Fulfilling Blood Request from {bloodRequest.name}
-                </span>
-                {bloodRequest.urgency === 'EMERGENCY' && (
-                  <Badge className="bg-red-600">EMERGENCY</Badge>
-                )}
-                {bloodRequest.urgency === 'URGENT' && (
-                  <Badge className="bg-orange-600">URGENT</Badge>
-                )}
+            <div className="mt-3 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <span className="text-sm font-semibold text-orange-900 block">
+                      Fulfilling Blood Request from {bloodRequest.name}
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="font-bold text-red-600 border-red-300 bg-red-50 text-base">
+                        {bloodRequest.bloodGroup.replace('_POSITIVE', '+').replace('_NEGATIVE', '-')}
+                      </Badge>
+                      <span className="text-xs text-gray-600">
+                        {bloodRequest.unitsNeeded} unit{bloodRequest.unitsNeeded !== 1 ? 's' : ''} needed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {bloodRequest.urgency === 'EMERGENCY' && (
+                    <Badge className="bg-red-600">EMERGENCY</Badge>
+                  )}
+                  {bloodRequest.urgency === 'URGENT' && (
+                    <Badge className="bg-orange-600">URGENT</Badge>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -592,6 +666,16 @@ export default function DonateFormPage() {
           >
             Cancel
           </Button>
+          {bloodRequest && (
+            <Button 
+              variant="destructive"
+              onClick={() => setShowRejectModal(true)}
+              disabled={createBloodIssue.isPending}
+            >
+              <XCircle size={16} className="mr-2" />
+              Reject Request
+            </Button>
+          )}
           <Button 
             className="bg-[#7F1D1D] hover:bg-[#991B1B]"
             onClick={handleSubmit}
@@ -607,6 +691,60 @@ export default function DonateFormPage() {
           </Button>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      {showRejectModal && bloodRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="text-base">Reject Blood Request</CardTitle>
+              <CardDescription className="text-xs">
+                Rejecting request from <strong>{bloodRequest.name}</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="rejectionReason">
+                  Rejection Reason <span className="text-red-600">*</span>
+                </Label>
+                <Textarea
+                  id="rejectionReason"
+                  placeholder="Enter reason for rejection (will be sent via email)..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  rows={4}
+                  className="mt-2"
+                />
+                {bloodRequest.email && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    📧 Rejection notification will be sent to: <strong>{bloodRequest.email}</strong>
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowRejectModal(false);
+                    setRejectionReason('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleReject}
+                  disabled={!rejectionReason.trim()}
+                  className="flex-1"
+                >
+                  Reject Request
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

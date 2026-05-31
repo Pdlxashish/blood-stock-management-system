@@ -17,6 +17,8 @@ router.patch("/:id/approve", asyncHandler(donorController.approveDonor));
 router.patch("/:id/reject", asyncHandler(donorController.rejectDonor));
 router.patch("/:id/unverify", asyncHandler(donorController.unverifyDonor));
 router.patch("/:id/request-reverification", asyncHandler(donorController.requestReverification));
+router.post("/:id/call", asyncHandler(donorController.callDonor));
+router.post("/:id/notify", asyncHandler(donorController.notifyDonor));
 router.delete("/:id", asyncHandler(donorController.deleteDonor));
 
 export default router;

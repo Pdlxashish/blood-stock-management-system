@@ -5,12 +5,13 @@ interface DonorCardProps {
   donor: any;
   clickedPos: { lat: number; lng: number } | null;
   onDonorClick: (donor: any) => void;
-  onCall: (name: string) => void;
-  onNotify: (name: string) => void;
+  onCall: (donorId: string, phoneNumber: string, donorName: string) => void;
+  onNotify: (donorId: string, donorName: string) => void;
 }
 
 export function DonorCard({ donor, clickedPos, onDonorClick, onCall, onNotify }: DonorCardProps) {
   const name = donor.user?.name || 'Unknown Donor';
+  const phoneNumber = donor.user?.phone || '';
   const fullAddress = donor.address || donor.location || donor.city || 'N/A';
   const bloodGroupDisplay = donor.bloodGroup.replace('_POSITIVE', '+').replace('_NEGATIVE', '-').replace('_', '');
   const lastDonation = donor.lastDonationDate 
@@ -86,7 +87,7 @@ export function DonorCard({ donor, clickedPos, onDonorClick, onCall, onNotify }:
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onCall(name);
+            onCall(donor.id, phoneNumber, name);
           }}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
         >
@@ -95,7 +96,7 @@ export function DonorCard({ donor, clickedPos, onDonorClick, onCall, onNotify }:
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onNotify(name);
+            onNotify(donor.id, name);
           }}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-red-800 rounded-lg text-xs font-semibold text-white hover:bg-red-900 transition-colors"
         >

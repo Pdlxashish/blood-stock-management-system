@@ -26,10 +26,20 @@ export const errorHandler = (
 ): void => {
   // Handle operational errors
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+    const response: any = {
       success: false,
       message: err.message,
-    });
+    };
+    
+    // Include additional error data if available (e.g., eligibility data)
+    if ((err as any).errorType) {
+      response.errorType = (err as any).errorType;
+    }
+    if ((err as any).eligibilityData) {
+      response.eligibilityData = (err as any).eligibilityData;
+    }
+    
+    res.status(err.statusCode).json(response);
     return;
   }
 

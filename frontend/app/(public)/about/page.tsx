@@ -37,6 +37,11 @@ interface StatItem {
   value: string;
 }
 
+interface WhatWeDoItem {
+  title: string;
+  description: string;
+}
+
 export default function AboutPage() {
   const [content, setContent] = useState<AboutContent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,6 +94,7 @@ export default function AboutPage() {
 
   const values: ValueItem[] = JSON.parse(content.values);
   const stats: StatItem[] = JSON.parse(content.stats);
+  const whatWeDo: WhatWeDoItem[] = JSON.parse(content.whatWeDo);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -162,7 +168,7 @@ export default function AboutPage() {
           </Card>
 
           {/* Stats */}
-          <div className="bg-red-50 rounded-lg p-8">
+          <div className="bg-red-50 rounded-lg p-8 mb-12">
             <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Our Impact</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat, index) => (
@@ -173,6 +179,46 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
+
+          {/* What We Do */}
+          <Card className="border border-gray-200 shadow-sm mb-12">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">What We Do</h2>
+              <div className="space-y-6">
+                {whatWeDo.map((item, index) => (
+                  <div key={index} className="border-l-4 border-red-500 pl-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                    <p className="text-gray-600">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Address</h3>
+                  <p className="text-gray-600">{content.contactAddress}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Phone</h3>
+                  <p className="text-gray-600">{content.contactPhone}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
+                  <p className="text-gray-600">{content.contactEmail}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Emergency Hotline</h3>
+                  <p className="text-red-600 font-semibold">{content.contactEmergency}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
       <PublicFooter />

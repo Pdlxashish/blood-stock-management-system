@@ -8,6 +8,8 @@ export interface User {
   role: string;
   isVerified: boolean;
   profilePicture?: string;
+  hasDonorProfile?: boolean;
+  donorStatus?: string | null;
 }
 
 export const getToken = (): string | null => {

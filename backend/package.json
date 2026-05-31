@@ -11,7 +11,8 @@
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "studio": "prisma studio",
-    "reset-whatsapp": "tsx src/scripts/resetWhatsAppNumber.ts"
+    "reset-whatsapp": "tsx src/scripts/resetWhatsAppNumber.ts",
+    "remove-lives-saved": "tsx src/scripts/removeLivesSavedFromStats.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,15 +26,17 @@
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "nodemon": "^3.1.14",
-    "prisma": "^7.7.0",
+    "prisma": "^7.8.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/client": "^7.8.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
@@ -42,6 +45,8 @@
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.9",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "pg": "^8.20.0",
     "zod": "^4.3.6"
   }

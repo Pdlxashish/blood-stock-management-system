@@ -31,7 +31,6 @@ interface DonorInfo {
   status: 'ACTIVE' | 'INACTIVE';
   donorTypeCategory: 'REGULAR' | 'FIRST_TIME' | 'OCCASIONAL';
   daysSinceLastDonation: number | null;
-  livesSaved: number;
   verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
   verifiedAt: string | null;
   rejectionReason: string | null;
@@ -355,7 +354,7 @@ export default function DonorVerificationPage() {
                   <div>
                     <p className="text-3xl font-bold">{donorInfo.totalDonations}</p>
                     <p className="text-xs text-muted-foreground">
-                      {donorInfo.livesSaved} lives potentially saved
+                      Total donations completed
                     </p>
                   </div>
                 </div>

@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heart, Droplet, Calendar, Weight, MapPin, AlertCircle, CheckCircle } from "lucide-react";
+import { Heart, Droplet, Calendar, Weight, MapPin, AlertCircle, CheckCircle, User } from "lucide-react";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { FullAddressAutocomplete } from "@/components/ui/full-address-autocomplete";
 import { BirthdayPicker } from "@/components/ui/birthday-picker";
 import { InteractiveLocationMap } from "@/components/ui/interactive-location-map";
 import { geocodeLocationWithFallback } from "@/lib/geocoding";
+import PhoneInput from "@/components/PhoneInput";
+import { validateMobileNumber, validateName } from "@/lib/validators";
 
 export default function DonorFormPage() {
   const router = useRouter();
@@ -27,23 +29,130 @@ export default function DonorFormPage() {
     hasMedicalCondition: "no",
     medicalConditionDetails: "",
   });
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    phone: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<any>(null);
   const [showLocationMap, setShowLocationMap] = useState(false);
   const [manualCoordinates, setManualCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [hasDonorProfile, setHasDonorProfile] = useState(false);
+  const [checkingProfile, setCheckingProfile] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (!token || !userData) {
-      router.push('/login');
-      return;
-    }
+    const checkDonorProfile = async (userId: string) => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/donors?userId=${userId}`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data.length > 0) {
+          // Donor profile already exists - redirect based on status
+          setHasDonorProfile(true);
+          const donorStatus = data.data[0].verificationStatus;
+          
+          if (donorStatus === 'PENDING') {
+            router.push('/verification-request');
+          } else if (donorStatus === 'APPROVED' || donorStatus === 'VERIFIED') {
+            router.push('/home');
+          } else {
+            router.push('/home');
+          }
+        } else {
+          setHasDonorProfile(false);
+          setCheckingProfile(false);
+        }
+      } catch (err) {
+        console.error('Error checking donor profile:', err);
+        setCheckingProfile(false);
+      }
+    };
 
-    setUser(JSON.parse(userData));
+    // Check for token in URL (from Google OAuth redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    
+    if (tokenFromUrl) {
+      // Store token from URL
+      localStorage.setItem('token', tokenFromUrl);
+      
+      // Fetch user data with the token
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${tokenFromUrl}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const userData = data.data;
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            
+            // Check if donor profile already exists
+            if (userData.hasDonorProfile) {
+              setHasDonorProfile(true);
+              // Redirect based on status
+              if (userData.donorStatus === 'PENDING') {
+                router.push('/verification-request');
+              } else {
+                router.push('/home');
+              }
+              return;
+            }
+            
+            // Check if this is a Google user (no phone number)
+            if (!userData.phone || userData.phone === '') {
+              setIsGoogleUser(true);
+              setProfileForm({
+                name: userData.name || '',
+                phone: '',
+              });
+            }
+            
+            setCheckingProfile(false);
+            
+            // Clean up URL by removing token parameter
+            window.history.replaceState({}, document.title, '/donor-form');
+          } else {
+            router.push('/login');
+          }
+        })
+        .catch(() => {
+          router.push('/login');
+        });
+    } else {
+      // Check if user is logged in via localStorage
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      
+      if (!token || !userData) {
+        router.push('/login');
+        return;
+      }
+
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      
+      // Check if donor profile already exists
+      if (parsedUser.hasDonorProfile) {
+        checkDonorProfile(parsedUser.id);
+        return;
+      }
+      
+      // Check if this is a Google user (no phone number)
+      if (!parsedUser.phone || parsedUser.phone === '') {
+        setIsGoogleUser(true);
+        setProfileForm({
+          name: parsedUser.name || '',
+          phone: '',
+        });
+      }
+      
+      setCheckingProfile(false);
+    }
   }, [router]);
 
   // Show map when both city and address are provided
@@ -89,6 +198,59 @@ export default function DonorFormPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Validate name and phone for Google users
+    if (isGoogleUser) {
+      // Validate name
+      const nameValidation = validateName(profileForm.name);
+      if (!nameValidation.isValid) {
+        setError(nameValidation.message || 'Invalid name');
+        setLoading(false);
+        return;
+      }
+
+      // Validate phone
+      const phoneValidation = validateMobileNumber(profileForm.phone);
+      if (!phoneValidation.isValid) {
+        setError(phoneValidation.message || 'Invalid phone number');
+        setLoading(false);
+        return;
+      }
+
+      // Update user profile first
+      try {
+        const token = localStorage.getItem('token');
+        const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: profileForm.name,
+            phone: profileForm.phone,
+          }),
+        });
+
+        const profileData = await profileResponse.json();
+
+        if (!profileData.success) {
+          throw new Error(profileData.message || 'Failed to update profile');
+        }
+
+        // Update local user data with response from backend
+        const updatedUser = { ...user, ...profileData.data };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        console.log('✅ Profile updated successfully:', updatedUser);
+      } catch (err) {
+        console.error('Failed to update profile:', err);
+        setError('Failed to update profile. Please try again.');
+        setLoading(false);
+        return;
+      }
+    }
 
     // Validate age
     if (form.dateOfBirth) {
@@ -193,9 +355,28 @@ export default function DonorFormPage() {
         throw new Error(data.message || 'Failed to create donor profile');
       }
 
-      // Update user data in localStorage
-      const updatedUser = { ...user, isVerified: false }; // Keep as false until admin verifies
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      console.log('✅ Donor profile created successfully');
+
+      // Fetch fresh user data from backend to ensure we have the latest info
+      try {
+        const token = localStorage.getItem('token');
+        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const userData = await userResponse.json();
+
+        if (userData.success) {
+          // Update localStorage with fresh data from backend
+          localStorage.setItem('user', JSON.stringify(userData.data));
+          console.log('✅ User data refreshed:', userData.data);
+        }
+      } catch (fetchError) {
+        console.error('Failed to fetch updated user data:', fetchError);
+        // Continue anyway - donor profile was created successfully
+      }
 
       // Success! Redirect to verification request page
       router.push('/verification-request');
@@ -210,6 +391,27 @@ export default function DonorFormPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (checkingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
+          <p className="text-gray-600">Checking your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasDonorProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting...</p>
+        </div>
       </div>
     );
   }
@@ -264,6 +466,48 @@ export default function DonorFormPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Profile Information (for Google users) */}
+              {isGoogleUser && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-600" />
+                    Complete Your Profile
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="profileName" className="text-gray-700">Full Name *</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="profileName"
+                          value={profileForm.name}
+                          onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                          placeholder="John Doe"
+                          className="pl-10 h-11"
+                          required
+                          disabled={loading}
+                        />
+                      </div>
+                    </div>
+
+                    <PhoneInput
+                      id="profilePhone"
+                      name="profilePhone"
+                      value={profileForm.phone}
+                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                      label="Phone Number"
+                      placeholder="9876543210"
+                      required
+                      disabled={loading}
+                      showValidation={true}
+                    />
+                  </div>
+                  <p className="text-xs text-blue-700 mt-3">
+                    We need your phone number to contact you for donation appointments
+                  </p>
+                </div>
+              )}
+
               {/* Medical Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">

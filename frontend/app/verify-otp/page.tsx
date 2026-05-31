@@ -14,6 +14,7 @@ export default function VerifyOTPPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
+  const message = searchParams.get('message') || ''; // Check if this is from Google OAuth
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -113,8 +114,17 @@ export default function VerifyOTPPage() {
       }
 
       setSuccess(true);
+      
+      // If this is from Google OAuth signup, redirect to donor-form
+      // Otherwise, redirect to login
       setTimeout(() => {
-        router.push('/login');
+        if (message === 'google_signup') {
+          // Store user email for donor-form to autofill
+          localStorage.setItem('pendingDonorEmail', email);
+          router.push('/donor-form');
+        } else {
+          router.push('/login');
+        }
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -167,7 +177,9 @@ export default function VerifyOTPPage() {
                   Email Verified!
                 </h2>
                 <p className="text-gray-600 mb-4">
-                  Your email has been successfully verified. Redirecting to login...
+                  {message === 'google_signup' 
+                    ? 'Your email has been successfully verified. Redirecting to complete your profile...'
+                    : 'Your email has been successfully verified. Redirecting to login...'}
                 </p>
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
               </div>

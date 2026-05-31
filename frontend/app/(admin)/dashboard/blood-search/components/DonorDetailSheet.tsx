@@ -6,8 +6,8 @@ interface DonorDetailSheetProps {
   donor: any | null;
   clickedPos: { lat: number; lng: number } | null;
   onClose: () => void;
-  onCall: (name: string) => void;
-  onNotify: (name: string) => void;
+  onCall: (donorId: string, phoneNumber: string, donorName: string) => void;
+  onNotify: (donorId: string, donorName: string) => void;
 }
 
 export function DonorDetailSheet({ donor, clickedPos, onClose, onCall, onNotify }: DonorDetailSheetProps) {
@@ -162,13 +162,13 @@ export function DonorDetailSheet({ donor, clickedPos, onClose, onCall, onNotify 
             </button>
             <div className="grid grid-cols-2 gap-2.5">
               <button
-                onClick={() => onCall(name)}
+                onClick={() => onCall(donor.id, phone, name)}
                 className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-sm font-semibold transition-colors"
               >
                 <Phone size={14} /> Call
               </button>
               <button
-                onClick={() => onNotify(name)}
+                onClick={() => onNotify(donor.id, name)}
                 className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-2.5 rounded-xl text-sm font-semibold transition-colors"
               >
                 <Bell size={14} /> Notify

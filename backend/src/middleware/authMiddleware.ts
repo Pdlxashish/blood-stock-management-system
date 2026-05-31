@@ -9,21 +9,6 @@ interface JwtPayload {
   exp?: number;
 }
 
-// Extend Express Request
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        name: string;
-        phone: string;
-        role: string;
-      };
-    }
-  }
-}
-
 // ================= PROTECT MIDDLEWARE =================
 export const protect = async (
   req: Request,
@@ -142,8 +127,10 @@ export const protect = async (
 // ================= AUTHORIZE MIDDLEWARE =================
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
+    const authenticatedUser = req.user as { id: string; email: string; name: string; phone: string; role: string } | undefined;
+    
     // 1. Check authentication
-    if (!req.user) {
+    if (!authenticatedUser) {
       res.status(401).json({
         success: false,
         message: 'Unauthorized',
@@ -152,7 +139,7 @@ export const authorize = (...roles: string[]) => {
     }
 
     // 2. Check role
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(authenticatedUser.role)) {
       res.status(403).json({
         success: false,
         message: `Forbidden - Requires: ${roles.join(', ')}`,

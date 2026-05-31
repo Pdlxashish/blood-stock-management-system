@@ -6,8 +6,8 @@ interface DonorGridProps {
   isLoading: boolean;
   clickedPos: { lat: number; lng: number } | null;
   onDonorClick: (donor: any) => void;
-  onCall: (name: string) => void;
-  onNotify: (name: string) => void;
+  onCall: (donorId: string, phoneNumber: string, donorName: string) => void;
+  onNotify: (donorId: string, donorName: string) => void;
 }
 
 export function DonorGrid({ donors, isLoading, clickedPos, onDonorClick, onCall, onNotify }: DonorGridProps) {

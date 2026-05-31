@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { 
   Image as ImageIcon, 
@@ -494,13 +494,13 @@ export default function GalleryManagementPage() {
 
       {/* Upload Dialog */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <DialogContent className="max-w-2xl" aria-describedby="upload-dialog-description">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Upload New Image</DialogTitle>
+            <DialogDescription>
+              Upload a new image to the gallery with title, description, and publish settings
+            </DialogDescription>
           </DialogHeader>
-          <p id="upload-dialog-description" className="sr-only">
-            Upload a new image to the gallery with title, description, and publish settings
-          </p>
           <div className="space-y-4">
             <div>
               <Label htmlFor="upload-image">Image *</Label>
@@ -580,13 +580,13 @@ export default function GalleryManagementPage() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-2xl" aria-describedby="edit-dialog-description">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Image</DialogTitle>
+            <DialogDescription>
+              Edit the image details including title, description, and publish status
+            </DialogDescription>
           </DialogHeader>
-          <p id="edit-dialog-description" className="sr-only">
-            Edit the image details including title, description, and publish status
-          </p>
           <div className="space-y-4">
             <div>
               <Label htmlFor="edit-image">Replace Image (Optional)</Label>
@@ -660,13 +660,13 @@ export default function GalleryManagementPage() {
 
       {/* Crop Dialog */}
       <Dialog open={cropDialogOpen} onOpenChange={setCropDialogOpen}>
-        <DialogContent className="max-w-4xl" aria-describedby="crop-dialog-description">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>
+            <DialogDescription>
+              Crop the image by selecting the desired area
+            </DialogDescription>
           </DialogHeader>
-          <p id="crop-dialog-description" className="sr-only">
-            Crop the image by selecting the desired area
-          </p>
           <div className="space-y-4">
             {cropImageSrc && (
               <ReactCrop
@@ -709,12 +709,15 @@ export default function GalleryManagementPage() {
 
       {/* Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-4xl" aria-describedby="preview-dialog-description">
+        <DialogContent className="max-w-4xl">
           {selectedImage && (
             <div className="space-y-4">
-              <p id="preview-dialog-description" className="sr-only">
-                Preview of {selectedImage.title}
-              </p>
+              <DialogHeader>
+                <DialogTitle>Image Preview</DialogTitle>
+                <DialogDescription>
+                  Preview of {selectedImage.title}
+                </DialogDescription>
+              </DialogHeader>
               <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={`${API_URL}${selectedImage.imageUrl}`}

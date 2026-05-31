@@ -209,9 +209,9 @@ export function DonorProfileActivity({ donor, name, bloodGroup, coordinates, has
           <CardContent className="px-4 pb-4 pt-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="mb-1 text-xs font-medium text-slate-600">Lives Impacted</p>
-                <p className="text-2xl font-bold text-amber-700">{donor.totalDonations * 3}</p>
-                <p className="mt-0.5 text-xs text-slate-500">People helped</p>
+                <p className="mb-1 text-xs font-medium text-slate-600">Total Donations</p>
+                <p className="text-2xl font-bold text-amber-700">{donor.totalDonations}</p>
+                <p className="mt-0.5 text-xs text-slate-500">Lifetime contributions</p>
               </div>
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-100">
                 <Award className="h-6 w-6 text-amber-600" />

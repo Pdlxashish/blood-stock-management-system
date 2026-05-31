@@ -1,10 +1,16 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import fs from 'fs';
 import { prisma } from '../../lib/prisma';
 import { generateOTP, sendOTPEmail } from '../utils/emailService';
+import {
+  validateRegistrationData,
+  validateLoginData,
+  validateMobileNumber,
+  validateName,
+} from '../utils/validators';
 
 const TOKEN_EXPIRY = '30d';
 
@@ -19,36 +25,23 @@ const generateToken = (id: string): string => {
   });
 };
 
-// Validators
-const isValidEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const isValidPassword = (password: string) =>
-  password.length >= 6;
-
 // ================= REGISTER =================
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone, role } = req.body;
 
-    if (!name || !email || !password || !phone) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      });
-    }
+    // Validate all registration fields
+    const validation = validateRegistrationData({
+      name,
+      email,
+      password,
+      phone,
+    });
 
-    if (!isValidEmail(email)) {
+    if (!validation.isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid email format',
-      });
-    }
-
-    if (!isValidPassword(password)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 6 characters',
+        message: validation.message,
       });
     }
 
@@ -152,15 +145,26 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    // Validate login fields
+    const validation = validateLoginData({ email, password });
+
+    if (!validation.isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Email & password required',
+        message: validation.message,
       });
     }
 
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
+      include: {
+        donor: {
+          select: {
+            id: true,
+            verificationStatus: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -220,6 +224,9 @@ export const loginUser = async (req: Request, res: Response) => {
           phone: user.phone,
           role: user.role,
           isVerified: user.isVerified,
+          hasDonorProfile: !!user.donor,
+          donorStatus: user.donor?.verificationStatus || null,
+          donorId: user.donor?.id || null,
         },
         token,
       },
@@ -236,12 +243,16 @@ export const loginUser = async (req: Request, res: Response) => {
 // ================= GET PROFILE =================
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authenticatedUser = req.user as { id: string; email: string; name: string; phone: string; role: string } | undefined;
+    
+    if (!authenticatedUser) {
       return res.status(401).json({ success: false });
     }
 
+    const userId = authenticatedUser.id;
+
     const user = await prisma.user.findUnique({
-      where: { id: req.user.id },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
@@ -249,13 +260,39 @@ export const getUserProfile = async (req: Request, res: Response) => {
         phone: true,
         role: true,
         isVerified: true,
+        profilePicture: true,
         createdAt: true,
+        donor: {
+          select: {
+            id: true,
+            verificationStatus: true,
+            bloodGroup: true,
+            location: true,
+            city: true,
+          },
+        },
       },
     });
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     res.json({
       success: true,
-      data: user,
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isVerified: user.isVerified,
+        profilePicture: user.profilePicture,
+        createdAt: user.createdAt,
+        hasDonorProfile: !!user.donor,
+        donorStatus: user.donor?.verificationStatus || null,
+        donorId: user.donor?.id || null,
+      },
     });
   } catch (err) {
     console.error('PROFILE ERROR:', err);
@@ -266,9 +303,13 @@ export const getUserProfile = async (req: Request, res: Response) => {
 // ================= UPDATE PROFILE =================
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authenticatedUser = req.user as { id: string; email: string; name: string; phone: string; role: string } | undefined;
+    
+    if (!authenticatedUser) {
       return res.status(401).json({ success: false });
     }
+
+    const userId = authenticatedUser.id;
 
     const { name, phone } = req.body;
 
@@ -280,27 +321,35 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     }
 
     // Validate name if provided
-    if (name && name.trim().length < 2) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name must be at least 2 characters long',
-      });
+    if (name) {
+      const nameValidation = validateName(name);
+      if (!nameValidation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: nameValidation.message,
+        });
+      }
     }
 
     // Validate phone if provided
-    if (phone && phone.trim().length < 10) {
-      return res.status(400).json({
-        success: false,
-        message: 'Phone number must be at least 10 digits',
-      });
+    if (phone) {
+      const phoneValidation = validateMobileNumber(phone);
+      if (!phoneValidation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: phoneValidation.message,
+        });
+      }
     }
 
+    // Prepare update data
+    const updateData: any = {};
+    if (name) updateData.name = name.trim();
+    if (phone) updateData.phone = phone.trim();
+
     const updatedUser = await prisma.user.update({
-      where: { id: req.user.id },
-      data: {
-        ...(name && { name: name.trim() }),
-        ...(phone && { phone: phone.trim() }),
-      },
+      where: { id: userId },
+      data: updateData,
       select: {
         id: true,
         name: true,
@@ -309,13 +358,29 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         role: true,
         isVerified: true,
         profilePicture: true,
+        donor: {
+          select: {
+            id: true,
+            verificationStatus: true,
+          },
+        },
       },
     });
 
     res.json({
       success: true,
       message: 'Profile updated successfully',
-      data: updatedUser,
+      data: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role,
+        isVerified: updatedUser.isVerified,
+        profilePicture: updatedUser.profilePicture,
+        hasDonorProfile: !!updatedUser.donor,
+        donorStatus: updatedUser.donor?.verificationStatus || null,
+      },
     });
   } catch (err) {
     console.error('UPDATE ERROR:', err);
@@ -326,12 +391,16 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 // ================= UPDATE PROFILE PICTURE =================
 export const updateProfilePicture = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    const authenticatedUser = req.user as { id: string; email: string; name: string; phone: string; role: string } | undefined;
+    
+    if (!authenticatedUser) {
       return res.status(401).json({ 
         success: false,
         message: 'Unauthorized' 
       });
     }
+
+    const userId = authenticatedUser.id;
 
     if (!req.file) {
       return res.status(400).json({
@@ -345,7 +414,7 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
 
     // Delete old profile picture if exists
     const currentUser = await prisma.user.findUnique({
-      where: { id: req.user.id },
+      where: { id: userId },
       select: { profilePicture: true },
     });
 
@@ -358,7 +427,7 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
 
     // Update user with new profile picture
     const updatedUser = await prisma.user.update({
-      where: { id: req.user.id },
+      where: { id: userId },
       data: { profilePicture: profilePictureUrl },
       select: {
         id: true,
@@ -368,13 +437,29 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
         role: true,
         isVerified: true,
         profilePicture: true,
+        donor: {
+          select: {
+            id: true,
+            verificationStatus: true,
+          },
+        },
       },
     });
 
     res.json({
       success: true,
       message: 'Profile picture updated successfully',
-      data: updatedUser,
+      data: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role,
+        isVerified: updatedUser.isVerified,
+        profilePicture: updatedUser.profilePicture,
+        hasDonorProfile: !!updatedUser.donor,
+        donorStatus: updatedUser.donor?.verificationStatus || null,
+      },
     });
   } catch (err) {
     console.error('PROFILE PICTURE UPDATE ERROR:', err);
@@ -465,4 +550,82 @@ export const adminLogin = async (req: Request, res: Response) => {
       message: 'Server error',
     });
   }
+};
+
+
+// ================= GOOGLE OAUTH HANDLERS =================
+
+// Initiate Google OAuth
+export const googleAuth = (_req: Request, _res: Response, next: NextFunction) => {
+  // This will be handled by passport middleware
+  next();
+};
+
+// Google OAuth Callback
+export const googleAuthCallback = async (req: Request, res: Response) => {
+  try {
+    console.log('[GOOGLE AUTH CALLBACK] Received callback request');
+    console.log('[GOOGLE AUTH CALLBACK] req.user:', req.user ? 'exists' : 'MISSING');
+    
+    if (!req.user) {
+      console.error('[GOOGLE AUTH] ❌ No user found in request - Passport authentication failed');
+      console.error('[GOOGLE AUTH] This usually means the Passport strategy had an error');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=auth_failed`);
+    }
+
+    const user = req.user as any;
+    console.log('[GOOGLE AUTH] ✅ User authenticated:', user.email);
+    console.log('[GOOGLE AUTH] User ID:', user.id);
+    console.log('[GOOGLE AUTH] User role:', user.role);
+    console.log('[GOOGLE AUTH] User isVerified:', user.isVerified);
+    console.log('[GOOGLE AUTH] Auth mode:', user.authMode);
+    console.log('[GOOGLE AUTH] Is existing user:', user.isExistingUser);
+
+    // Generate JWT token
+    const token = generateToken(user.id);
+    console.log('[GOOGLE AUTH] ✅ JWT token generated');
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+    // Check if user needs email verification (should not be true for Google OAuth users now)
+    if (!user.emailVerified) {
+      console.log('[GOOGLE AUTH] User needs email verification - redirecting to OTP page');
+      const otpRedirectUrl = `${frontendUrl}/verify-otp?email=${encodeURIComponent(user.email)}&message=google_signup`;
+      console.log('[GOOGLE AUTH] 🔄 Redirecting to OTP verification');
+      console.log('[GOOGLE AUTH] Final redirect URL:', otpRedirectUrl);
+      return res.redirect(otpRedirectUrl);
+    }
+
+    // If existing user logging in, redirect to home if they have a donor profile
+    if (user.isExistingUser && user.authMode === 'signin') {
+      console.log('[GOOGLE AUTH] Existing user signin - checking donor profile');
+      if (user.donor && user.donor.verificationStatus === 'APPROVED') {
+        console.log('[GOOGLE AUTH] Redirecting to home');
+        const homeUrl = `${frontendUrl}/home?token=${token}`;
+        return res.redirect(homeUrl);
+      }
+    }
+
+    // If coming from signup page (new user), redirect to donor-form
+    if (user.authMode === 'signup' && !user.isExistingUser) {
+      console.log('[GOOGLE AUTH] New signup - redirecting to donor-form');
+      const donorFormUrl = `${frontendUrl}/donor-form?token=${token}`;
+      console.log('[GOOGLE AUTH] Final redirect URL:', donorFormUrl);
+      return res.redirect(donorFormUrl);
+    }
+
+    // For signin mode or existing users, redirect to login page which will handle routing
+    const redirectUrl = `${frontendUrl}/login?token=${token}`;
+    console.log('[GOOGLE AUTH] Final redirect URL:', redirectUrl);
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('[GOOGLE AUTH] ❌ Callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=auth_failed`);
+  }
+};
+
+// Google OAuth failure handler
+export const googleAuthFailure = (_req: Request, res: Response) => {
+  console.error('[GOOGLE AUTH] Authentication failed');
+  res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
 };

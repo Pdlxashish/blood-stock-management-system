@@ -325,7 +325,6 @@ export const verifyDonor = async (req: Request, res: Response) => {
       status,
       donorTypeCategory,
       daysSinceLastDonation,
-      livesSaved: donor.totalDonations * 3, // Estimate: 1 donation can save up to 3 lives
     },
   });
 };
@@ -833,4 +832,81 @@ export const unverifyDonor = async (req: Request, res: Response) => {
     message: "Donor unverified successfully. Notification email sent to donor.",
     data: updatedDonor,
   });
+};
+
+// Call a donor (initiate phone call)
+export const callDonor = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { calledBy } = req.body; // User ID of the person making the call
+
+  const donor = await prisma.donor.findUnique({
+    where: { id: id as string },
+    include: { user: true },
+  });
+
+  if (!donor) {
+    throw new AppError("Donor not found", 404);
+  }
+
+  // Log the call attempt (you can add a CallLog model if needed)
+  console.log(`📞 Call initiated to donor ${donor.user.name} (${donor.user.phone}) by ${calledBy || 'unknown'}`);
+
+  // In a real implementation, you would integrate with a telephony service like Twilio
+  // For now, we'll just return the phone number for the frontend to handle
+  
+  res.json({
+    status: "success",
+    message: `Initiating call to ${donor.user.name}`,
+    data: {
+      donorId: donor.id,
+      donorName: donor.user.name,
+      phoneNumber: donor.user.phone,
+      callInitiatedAt: new Date(),
+    },
+  });
+};
+
+// Notify a donor (send notification)
+export const notifyDonor = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { message, title, notifiedBy } = req.body;
+
+  const donor = await prisma.donor.findUnique({
+    where: { id: id as string },
+    include: { user: true },
+  });
+
+  if (!donor) {
+    throw new AppError("Donor not found", 404);
+  }
+
+  // Create notification for the donor
+  const notificationTitle = title || 'Blood Donation Request';
+  const notificationMessage = message || 'You have been contacted regarding a blood donation request. Please check your notifications for more details.';
+
+  try {
+    const notification = await createNotification(
+      donor.userId,
+      'BLOOD_REQUEST',
+      notificationTitle,
+      notificationMessage,
+      '/dashboard'
+    );
+
+    console.log(`🔔 Notification sent to donor ${donor.user.name} (${donor.user.email}) by ${notifiedBy || 'unknown'}`);
+
+    res.json({
+      status: "success",
+      message: `Notification sent to ${donor.user.name}`,
+      data: {
+        donorId: donor.id,
+        donorName: donor.user.name,
+        notification,
+        notifiedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error('Failed to send notification:', error);
+    throw new AppError("Failed to send notification to donor", 500);
+  }
 };

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../middleware/errorHandler";
+import { sendBloodRequestApprovalEmail, sendBloodRequestRejectionEmail, sendBloodRequestFulfillmentEmail } from "../utils/emailService";
 
 // Create blood request (public endpoint)
 export const createBloodRequest = async (req: Request, res: Response) => {
@@ -24,8 +25,63 @@ export const createBloodRequest = async (req: Request, res: Response) => {
   };
 
   const dbBloodGroup = bloodGroupMap[bloodGroup] || bloodGroup;
+  const requestedUnits = parseInt(unitsNeeded) || 1;
 
-  // Create blood request
+  // Check blood stock availability
+  const stockSummary = await prisma.bloodStockSummary.findUnique({
+    where: { bloodGroup: dbBloodGroup as any },
+  });
+
+  const available = stockSummary ? stockSummary.available : 0;
+  const isAvailable = available >= requestedUnits;
+
+  // If stock is not available, auto-reject and send email
+  if (!isAvailable) {
+    const bloodRequest = await prisma.bloodRequest.create({
+      data: {
+        name,
+        phone,
+        email: email || null,
+        address,
+        bloodGroup: dbBloodGroup as any,
+        unitsNeeded: requestedUnits,
+        urgency: urgency || 'NORMAL',
+        neededBy: new Date(neededBy),
+        notes: notes || null,
+        status: 'REJECTED',
+        stockAvailable: false,
+        stockCheckedAt: new Date(),
+        reviewedAt: new Date(),
+        rejectedAt: new Date(),
+        rejectionReason: `Insufficient stock. Available: ${available} unit(s), Requested: ${requestedUnits} unit(s). Please try again later or contact other blood banks.`,
+      },
+    });
+
+    // Send rejection email if email is provided
+    if (email) {
+      try {
+        const bloodGroupDisplay = bloodGroup; // Use original format (A+, B-, etc.)
+        await sendBloodRequestRejectionEmail(
+          email,
+          name,
+          bloodGroupDisplay,
+          requestedUnits,
+          `Insufficient stock. We currently have ${available} unit(s) available, but you requested ${requestedUnits} unit(s).`
+        );
+        console.log(`✅ Auto-rejection email sent to ${email}`);
+      } catch (emailError) {
+        console.error('❌ Failed to send rejection email:', emailError);
+      }
+    }
+
+    return res.status(200).json({
+      status: "rejected",
+      message: `We're sorry, but we don't have sufficient ${bloodGroup} blood in stock. Your request has been recorded and we'll notify you when stock becomes available.`,
+      data: bloodRequest,
+    });
+  }
+
+  // Create blood request with pending status if stock is available
   const bloodRequest = await prisma.bloodRequest.create({
     data: {
       name,
@@ -33,11 +89,13 @@ export const createBloodRequest = async (req: Request, res: Response) => {
       email: email || null,
       address,
       bloodGroup: dbBloodGroup as any,
-      unitsNeeded: parseInt(unitsNeeded) || 1,
+      unitsNeeded: requestedUnits,
       urgency: urgency || 'NORMAL',
       neededBy: new Date(neededBy),
       notes: notes || null,
       status: 'PENDING',
+      stockAvailable: true,
+      stockCheckedAt: new Date(),
     },
   });
 
@@ -189,6 +247,27 @@ export const approveBloodRequest = async (req: Request, res: Response) => {
     },
   });
 
+  // Send approval email if email is provided
+  if (updatedRequest.email) {
+    try {
+      // Convert blood group back to readable format (A_POSITIVE -> A+)
+      const bloodGroupDisplay = updatedRequest.bloodGroup
+        .replace('_POSITIVE', '+')
+        .replace('_NEGATIVE', '-');
+      
+      await sendBloodRequestApprovalEmail(
+        updatedRequest.email,
+        updatedRequest.name,
+        bloodGroupDisplay,
+        updatedRequest.unitsNeeded
+      );
+      console.log(`✅ Approval email sent to ${updatedRequest.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send approval email:', emailError);
+      // Don't fail the approval if email fails
+    }
+  }
+
   res.json({
     status: "success",
     message: "Blood request approved successfully",
@@ -229,6 +308,28 @@ export const rejectBloodRequest = async (req: Request, res: Response) => {
     },
   });
 
+  // Send rejection email if email is provided
+  if (updatedRequest.email) {
+    try {
+      // Convert blood group back to readable format (A_POSITIVE -> A+)
+      const bloodGroupDisplay = updatedRequest.bloodGroup
+        .replace('_POSITIVE', '+')
+        .replace('_NEGATIVE', '-');
+      
+      await sendBloodRequestRejectionEmail(
+        updatedRequest.email,
+        updatedRequest.name,
+        bloodGroupDisplay,
+        updatedRequest.unitsNeeded,
+        rejectionReason
+      );
+      console.log(`✅ Rejection email sent to ${updatedRequest.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send rejection email:', emailError);
+      // Don't fail the rejection if email fails
+    }
+  }
+
   res.json({
     status: "success",
     message: "Blood request rejected",
@@ -257,7 +358,7 @@ export const getApprovedBloodRequests = async (req: Request, res: Response) => {
     },
     orderBy: [
       { urgency: 'desc' },
-      { neededBy: 'asc' },
+      { createdAt: 'desc' }, // LIFO - most recent first
     ],
     take: 50, // Limit to 50 most urgent
   });
@@ -295,6 +396,27 @@ export const fulfillBloodRequest = async (req: Request, res: Response) => {
       bloodIssueId: bloodIssueId || null,
     },
   });
+
+  // Send fulfillment email if email is provided
+  if (updatedRequest.email) {
+    try {
+      // Convert blood group back to readable format (A_POSITIVE -> A+)
+      const bloodGroupDisplay = updatedRequest.bloodGroup
+        .replace('_POSITIVE', '+')
+        .replace('_NEGATIVE', '-');
+      
+      await sendBloodRequestFulfillmentEmail(
+        updatedRequest.email,
+        updatedRequest.name,
+        bloodGroupDisplay,
+        updatedRequest.unitsNeeded
+      );
+      console.log(`✅ Fulfillment email sent to ${updatedRequest.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send fulfillment email:', emailError);
+      // Don't fail the fulfillment if email fails
+    }
+  }
 
   res.json({
     status: "success",

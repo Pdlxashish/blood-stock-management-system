@@ -247,3 +247,31 @@ export function useRemoveParticipant(eventId: string) {
     },
   });
 }
+
+// Get user's event participations
+export function useUserEventParticipations(userId: string) {
+  return useQuery({
+    queryKey: ['user-event-participations', userId],
+    queryFn: async () => {
+      const response = await axiosInstance.get<{ status: string; data: EventParticipant[] }>(
+        `/api/users/${userId}/event-participations`
+      );
+      return response.data.data;
+    },
+    enabled: !!userId,
+  });
+}
+
+// Get user's event volunteer records
+export function useUserEventVolunteers(userId: string) {
+  return useQuery({
+    queryKey: ['user-event-volunteers', userId],
+    queryFn: async () => {
+      const response = await axiosInstance.get<{ status: string; data: EventVolunteer[] }>(
+        `/api/users/${userId}/event-volunteers`
+      );
+      return response.data.data;
+    },
+    enabled: !!userId,
+  });
+}

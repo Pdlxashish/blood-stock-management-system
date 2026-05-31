@@ -23,6 +23,9 @@ model User {
   role       Role     @default(DONOR)
   isVerified Boolean  @default(false)
   
+  // OAuth
+  googleId      String?  @unique
+  
   // Email verification
   emailVerified Boolean  @default(false)
   otp           String?
@@ -45,6 +48,7 @@ model User {
 
   @@index([email])
   @@index([phone])
+  @@index([googleId])
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -474,7 +478,7 @@ model About {
   storyContent    String   @default("VitalFlow was founded with a simple yet powerful idea: use technology to save lives through better blood donation management.")
   
   // Stats (stored as JSON)
-  stats           String   @default("[{\"label\":\"Active Donors\",\"value\":\"500+\"},{\"label\":\"Lives Saved\",\"value\":\"1,200+\"},{\"label\":\"Partner Hospitals\",\"value\":\"25+\"},{\"label\":\"Blood Units Collected\",\"value\":\"3,000+\"}]")
+  stats           String   @default("[{\"label\":\"Active Donors\",\"value\":\"500+\"},{\"label\":\"Partner Hospitals\",\"value\":\"25+\"},{\"label\":\"Blood Units Collected\",\"value\":\"3,000+\"}]")
   
   // Contact Information
   contactAddress  String   @default("123 Blood Bank Street, Medical District, City 12345")

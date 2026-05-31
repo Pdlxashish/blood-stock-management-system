@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import {
-  Heart, Plus, Search, User, Building2, Droplets, TrendingUp, CheckCircle2, Home, Loader2, AlertCircle, Bell, Phone, MapPin
+  Heart, Plus, Search, User, Building2, Droplets, TrendingUp, CheckCircle2, Home, Loader2, AlertCircle, Bell, Phone, MapPin, XCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { BLOOD_GROUPS } from "@/lib/data";
 import { useBloodIssues } from "@/lib/queries/bloodIssues";
+import { toast as sonnerToast } from "sonner";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,6 +35,9 @@ export default function BloodDonatePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [approvedRequests, setApprovedRequests] = useState<any[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   // Fetch blood issues using TanStack Query
   const { data: bloodIssues = [], isLoading, error } = useBloodIssues();
@@ -52,6 +58,48 @@ export default function BloodDonatePage() {
     };
     fetchApprovedRequests();
   }, []);
+
+  const handleRejectRequest = async () => {
+    if (!rejectionReason.trim()) {
+      sonnerToast.error('Please provide a rejection reason');
+      return;
+    }
+
+    if (!selectedRequest) {
+      sonnerToast.error('No request selected');
+      return;
+    }
+
+    try {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/${selectedRequest.id}/reject`,
+        {
+          reviewedBy: 'admin',
+          rejectionReason: rejectionReason.trim(),
+        }
+      );
+
+      // Send rejection email notification
+      if (selectedRequest.email) {
+        sonnerToast.success(`Blood request rejected. Notification email sent to ${selectedRequest.email}`);
+      } else {
+        sonnerToast.success('Blood request rejected successfully');
+      }
+
+      // Refresh the approved requests list
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/blood-requests/approved`
+      );
+      setApprovedRequests(response.data.data);
+      
+      // Close modal and reset
+      setShowRejectModal(false);
+      setSelectedRequest(null);
+      setRejectionReason('');
+    } catch (error: any) {
+      sonnerToast.error(error.response?.data?.message || 'Failed to reject blood request');
+    }
+  };
 
   // Calculate stats
   const totalUnits = bloodIssues.reduce((sum, issue) => sum + issue.unitsIssued, 0);
@@ -293,53 +341,128 @@ export default function BloodDonatePage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              {approvedRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="bg-white p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold text-gray-900">{request.name}</h4>
-                        <Badge variant="outline" className="font-bold text-red-600">
-                          {request.bloodGroup}
-                        </Badge>
-                        {request.urgency === 'EMERGENCY' && (
-                          <Badge className="bg-red-600">EMERGENCY</Badge>
-                        )}
-                        {request.urgency === 'URGENT' && (
-                          <Badge className="bg-orange-600">URGENT</Badge>
-                        )}
+              {approvedRequests.map((request) => {
+                // Convert blood group from database format to display format
+                const displayBloodGroup = request.bloodGroup
+                  .replace('_POSITIVE', '+')
+                  .replace('_NEGATIVE', '-');
+                
+                return (
+                  <div
+                    key={request.id}
+                    className="bg-white p-4 rounded-lg border border-orange-200 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-semibold text-gray-900">{request.name}</h4>
+                          <Badge variant="outline" className="font-bold text-red-600 border-red-300 bg-red-50 text-base px-2 py-0.5">
+                            {displayBloodGroup}
+                          </Badge>
+                          {request.urgency === 'EMERGENCY' && (
+                            <Badge className="bg-red-600">EMERGENCY</Badge>
+                          )}
+                          {request.urgency === 'URGENT' && (
+                            <Badge className="bg-orange-600">URGENT</Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {request.phone}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Droplets className="h-3 w-3" />
+                            {request.unitsNeeded} unit{request.unitsNeeded !== 1 ? 's' : ''} needed
+                          </div>
+                          <div className="flex items-center gap-1 col-span-2">
+                            <MapPin className="h-3 w-3" />
+                            {request.address}
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {request.phone}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Droplets className="h-3 w-3" />
-                          {request.unitsNeeded} unit{request.unitsNeeded !== 1 ? 's' : ''} needed
-                        </div>
-                        <div className="flex items-center gap-1 col-span-2">
-                          <MapPin className="h-3 w-3" />
-                          {request.address}
-                        </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setShowRejectModal(true);
+                          }}
+                        >
+                          <XCircle size={14} className="mr-1" />
+                          Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700"
+                          onClick={() => router.push(`/dashboard/blood-donate/donate-form?requestId=${request.id}`)}
+                        >
+                          Issue Blood
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700"
-                      onClick={() => router.push(`/dashboard/blood-donate/donate-form?requestId=${request.id}`)}
-                    >
-                      Issue Blood
-                    </Button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Rejection Modal */}
+      {showRejectModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="text-base">Reject Blood Request</CardTitle>
+              <CardDescription className="text-xs">
+                Rejecting request from <strong>{selectedRequest.name}</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="rejectionReason">
+                  Rejection Reason <span className="text-red-600">*</span>
+                </Label>
+                <Textarea
+                  id="rejectionReason"
+                  placeholder="Enter reason for rejection (will be sent via email)..."
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  rows={4}
+                  className="mt-2"
+                />
+                {selectedRequest.email && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    📧 Rejection notification will be sent to: <strong>{selectedRequest.email}</strong>
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowRejectModal(false);
+                    setSelectedRequest(null);
+                    setRejectionReason('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleRejectRequest}
+                  disabled={!rejectionReason.trim()}
+                  className="flex-1"
+                >
+                  Reject Request
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* ── All Donations Table ── */}

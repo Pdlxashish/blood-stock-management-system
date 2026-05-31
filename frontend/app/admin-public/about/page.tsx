@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { 
   Info, 
@@ -450,13 +450,13 @@ export default function AboutManagementPage() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" aria-describedby="edit-dialog-description">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit {editSection}</DialogTitle>
+            <DialogDescription>
+              Edit the {editSection} section content
+            </DialogDescription>
           </DialogHeader>
-          <p id="edit-dialog-description" className="sr-only">
-            Edit the {editSection} section content
-          </p>
           <div className="space-y-4">
             {/* Hero Section */}
             {editSection === 'hero' && (

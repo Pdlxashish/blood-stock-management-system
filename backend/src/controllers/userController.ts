@@ -109,3 +109,49 @@ export const deleteUser = async (req: Request, res: Response) => {
 
   res.json({ status: "success", message: "User deleted successfully" });
 };
+
+// Get user's event participations
+export const getUserEventParticipations = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const participations = await prisma.eventParticipant.findMany({
+    where: { userId: id as string },
+    include: {
+      event: {
+        select: {
+          id: true,
+          title: true,
+          eventDate: true,
+          location: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  res.json({ status: "success", data: participations });
+};
+
+// Get user's event volunteer records
+export const getUserEventVolunteers = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const volunteers = await prisma.eventVolunteer.findMany({
+    where: { userId: id as string },
+    include: {
+      event: {
+        select: {
+          id: true,
+          title: true,
+          eventDate: true,
+          location: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  res.json({ status: "success", data: volunteers });
+};

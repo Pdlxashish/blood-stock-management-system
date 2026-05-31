@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PasswordInput from '@/components/PasswordInput';
+import PhoneInput from '@/components/PhoneInput';
+import { validatePassword, validateMobileNumber, validateEmail, validateName } from '@/lib/validators';
 
 export default function ClaimAccountPage() {
   const router = useRouter();
@@ -39,12 +42,6 @@ export default function ClaimAccountPage() {
 
       setSuccess(`Verification code sent to ${data.data.sentTo}`);
       setStep('verify');
-      
-      // For testing: show the code
-      if (data.data.verificationCode) {
-        console.log('Verification Code:', data.data.verificationCode);
-        alert(`Testing Mode - Your code: ${data.data.verificationCode}`);
-      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -58,14 +55,25 @@ export default function ClaimAccountPage() {
     setError('');
     setSuccess('');
 
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message || 'Invalid password');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
+    // Validate name if provided
+    if (name) {
+      const nameValidation = validateName(name);
+      if (!nameValidation.isValid) {
+        setError(nameValidation.message || 'Invalid name');
+        return;
+      }
     }
 
     setLoading(true);
@@ -127,12 +135,6 @@ export default function ClaimAccountPage() {
       }
 
       setSuccess('Verification code resent!');
-      
-      // For testing
-      if (data.data.verificationCode) {
-        console.log('New Code:', data.data.verificationCode);
-        alert(`Testing Mode - New code: ${data.data.verificationCode}`);
-      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -246,13 +248,17 @@ export default function ClaimAccountPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Create Password
               </label>
-              <input
-                type="password"
+              <PasswordInput
+                id="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                label=""
+                placeholder="Create a strong password"
                 required
+                disabled={loading}
+                showStrengthIndicator={true}
+                showRequirements={true}
               />
             </div>
 

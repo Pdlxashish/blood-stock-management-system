@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { getUser, isAuthenticated, setAuth } from '@/lib/auth';
 import type { User } from '@/lib/auth';
 import PublicNav from '@/components/PublicNav';
@@ -307,15 +307,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {user.phone && (
-                  <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <Phone className="h-5 w-5 text-gray-600 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-500">Phone Number</p>
-                      <p className="text-lg text-gray-900 font-medium">{user.phone}</p>
-                    </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Phone className="h-5 w-5 text-gray-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-500">Phone Number</p>
+                    <p className="text-lg text-gray-900 font-medium">{user.phone || 'Not provided'}</p>
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
 
@@ -403,19 +401,19 @@ export default function ProfilePage() {
           </div>
 
           {/* Quick Actions */}
-          {user.role === 'DONOR' && !user.isVerified && (
+          {user.role === 'DONOR' && !donorProfile && (
             <Card className="mt-6 border-0 shadow-lg bg-gradient-to-r from-red-50 to-orange-50">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Complete Your Profile</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">Complete Your Donor Profile</h3>
                     <p className="text-sm text-gray-600">
-                      Fill out your donor information to get verified
+                      Fill out your medical information to become a verified donor
                     </p>
                   </div>
                   <Link href="/donor-form">
                     <Button className="bg-red-600 hover:bg-red-700">
-                      Complete Profile
+                      Complete Donor Profile
                     </Button>
                   </Link>
                 </div>
@@ -435,6 +433,9 @@ export default function ProfilePage() {
               <Edit className="h-5 w-5 text-red-600" />
               Edit Profile
             </DialogTitle>
+            <DialogDescription>
+              Update your profile information
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div>

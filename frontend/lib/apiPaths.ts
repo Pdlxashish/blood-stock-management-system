@@ -30,6 +30,9 @@ export const API_PATHS = {
     CREATE: "/api/donors",
     UPDATE: (id: string) => `/api/donors/${id}`,
     DELETE: (id: string) => `/api/donors/${id}`,
+    CALL: (id: string) => `/api/donors/${id}/call`,
+    NOTIFY: (id: string) => `/api/donors/${id}/notify`,
+    GET_ELIGIBILITY: (userId: string) => `/api/donors/user/${userId}/eligibility`,
   },
 
   /**

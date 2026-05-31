@@ -1,7 +1,33 @@
+'use client';
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Droplets, Mail, Phone, MapPin } from "lucide-react";
+import axiosInstance from "@/lib/axiosInstance";
+
+interface AboutContent {
+  contactAddress: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactEmergency: string;
+}
 
 export default function PublicFooter() {
+  const [contactInfo, setContactInfo] = useState<AboutContent | null>(null);
+
+  useEffect(() => {
+    fetchContactInfo();
+  }, []);
+
+  const fetchContactInfo = async () => {
+    try {
+      const response = await axiosInstance.get('/api/about');
+      setContactInfo(response.data.data);
+    } catch (error) {
+      console.error('Error fetching contact info:', error);
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -95,23 +121,49 @@ export default function PublicFooter() {
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Contact Info - Dynamic */}
           <div>
             <h3 className="text-white font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>123 Blood Bank Street, Medical District, NY 10001</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>contact@vitalflow.com</span>
-              </li>
-            </ul>
+            {contactInfo ? (
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>{contactInfo.contactAddress}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span>{contactInfo.contactPhone}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span>{contactInfo.contactEmail}</span>
+                </li>
+                {contactInfo.contactEmergency && (
+                  <li className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-700">
+                    <Phone className="h-4 w-4 flex-shrink-0 text-red-500" />
+                    <div>
+                      <p className="text-xs text-gray-400">Emergency Hotline</p>
+                      <p className="text-red-500 font-semibold">{contactInfo.contactEmergency}</p>
+                    </div>
+                  </li>
+                )}
+              </ul>
+            ) : (
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-500">Loading...</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-gray-500">Loading...</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-gray-500">Loading...</span>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
 
